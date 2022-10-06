@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +61,6 @@ void RenderString(float x, float y, void *font, const char* string)
   	glutBitmapString(font, string);
 }
 
-
 void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 	printf("%f %f\n", goalPos, bola.transX);
 	if (bola.transX <= goalPos) {
@@ -78,10 +78,11 @@ void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 	char bufferDir[20];
 	char separator[] = {" X "};
 	
-	
-	RenderString(0.0f, 5.0f, GLUT_BITMAP_TIMES_ROMAN_24, strcat(strcat(itoa(goalEsq, bufferEsq, 10), separator), itoa(goalDir, bufferDir, 10)));
+	char str[80];
+    sprintf(str, "%d X %d", goalEsq, goalDir);
+    
+    RenderString(0.0f, 5.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
 }
-
 
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 {
@@ -282,17 +283,41 @@ void keyboard(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
+void reshape(GLsizei w, GLsizei h)
+{
+    if(h == 0)
+		h = 1;
+	float ratio = 1.0* w / h;
+
+	// Use the Projection Matrix
+	glMatrixMode(GL_PROJECTION);
+
+        // Reset Matrix
+	glLoadIdentity();
+
+	// Set the viewport to be the entire window
+	glViewport(0, 0, w, h);
+
+	// Set the correct perspective.
+	gluPerspective(45,ratio,1,1000);
+
+	// Get Back to the Modelview
+	glMatrixMode(GL_MODELVIEW);
+}
+
+
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("Color cube with camera");
+    glutCreateWindow("Campo");
     
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
     glutIdleFunc(Spin);
+    glutReshapeFunc(reshape);
     init();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
