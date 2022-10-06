@@ -28,16 +28,17 @@ void resetRotacao()
 
 void Spin()
 {
-    T += 1;
-    if (T > 360)
-        T = 0;
-    glutPostRedisplay();
+//    T += 1;
+//    if (T > 360)
+//        T = 0;
+//    glutPostRedisplay();
 }
 
 void printAr(GLfloat a[], char* name)
 {
     printf("%s: ", name);
-    for (int i = 0; i < 3; i++) 
+    int i;
+    for (i = 0; i < 3; i++) 
         printf("%f ",a[i]);
     printf("\n");
 }
@@ -65,13 +66,38 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.3);
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.6);
-
     glEnd();
+    
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.2);
+        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
+    glEnd();
+    
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.8);
+        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
+    glEnd();
+
+	glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    	glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
+        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
+    glEnd();
+    
     glColor3f(1,0,0);
     glBegin(GL_LINE_LOOP);
         glVertex3f(V1[0], V1[1]+10, V1[2]);
         glVertex3fv(V5);
     glEnd();
+    
+    glColor3f(1,0,0);
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(V1[0], V1[1], V1[2]);
+        glVertex3fv(V5);
+    glEnd();
+    
     glPopMatrix();
     glColor3f(0,1,0);
 }
