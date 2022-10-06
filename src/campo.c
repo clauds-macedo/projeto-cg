@@ -1,11 +1,14 @@
 #include <GL/glut.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 GLfloat Cx = 0, Cy = 15, Cz = 30;
 GLfloat atX = 0, atY = 0, atZ = 0;
 GLfloat T = 0;
 int enabled = 1;
-
+int goalEsq = 0;
+int goalDir = 0;
 
 typedef struct ball {
     GLfloat transX, transZ;
@@ -47,13 +50,38 @@ void printAr(GLfloat a[], char* name)
     printf("\n");
 }
 
+void RenderString(float x, float y, void *font, const char* string)
+{  
+  	char *c;
+
+  	glColor3f(1, 1, 1); 
+  	glRasterPos2f(x, y);
+
+  	glutBitmapString(font, string);
+}
+
+
 void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 	printf("%f %f\n", goalPos, bola.transX);
 	if (bola.transX <= goalPos) {
+		goalEsq++;
 		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
 		resetBallPosition();
 	}
+	else if (bola.transX >= -goalPos) {
+		goalDir++;
+		printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
+		resetBallPosition();
+	}
+	
+	char bufferEsq[20];
+	char bufferDir[20];
+	char separator[] = {" X "};
+	
+	
+	RenderString(0.0f, 5.0f, GLUT_BITMAP_TIMES_ROMAN_24, strcat(strcat(itoa(goalEsq, bufferEsq, 10), separator), itoa(goalDir, bufferDir, 10)));
 }
+
 
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 {
