@@ -18,12 +18,16 @@ Bola bola = {
         0.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 1.0f
     };
-
+ 
 void resetRotacao()
 {
     if (bola.rotX == 1) bola.rotX = 0; 
     if (bola.rotY == 1) bola.rotY = 0; 
     if (bola.rotZ == 1) bola.rotZ = 0; 
+}
+
+void resetBallPosition() {
+	bola.transX = 0;
 }
 
 void Spin()
@@ -41,6 +45,14 @@ void printAr(GLfloat a[], char* name)
     for (i = 0; i < 3; i++) 
         printf("%f ",a[i]);
     printf("\n");
+}
+
+void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
+	printf("%f %f\n", goalPos, bola.transX);
+	if (bola.transX <= goalPos) {
+		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
+		resetBallPosition();
+	}
 }
 
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
@@ -67,6 +79,7 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.3);
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.6);
     glEnd();
+    
     
     glColor3f(1,1,1);
     glBegin(GL_LINES);
@@ -100,6 +113,8 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     
     glPopMatrix();
     glColor3f(0,1,0);
+    
+    checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(-(V1[1]+15));
 }
 
 
@@ -251,7 +266,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutIdleFunc(Spin);
     init();
-
+	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
 
     return 0;
