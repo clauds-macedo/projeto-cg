@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ALTURA_TRAVE 7.32
+
 GLfloat Cx = 0, Cy = 15, Cz = 30;
 GLfloat atX = 0, atY = 0, atZ = 0;
 GLfloat T = 0;
@@ -84,20 +86,9 @@ void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
     RenderString(0.0f, 5.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
 }
 
-void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
+void traves(GLfloat V0[], GLfloat V1[])
 {
-    glColor3f(1,1,1);
-    glPushMatrix();
-    glBegin(GL_LINE_LOOP);
-        glVertex3fv(V0);
-        glVertex3fv(V1);
-        glVertex3fv(V5);
-        glVertex3fv(V4);
-    glEnd();
-    glPopMatrix();
-    //
-
-    glColor3f(1,0,1);
+    // trave esq
     glBegin(GL_LINES);
         glVertex3f(V0[0], V0[1], V0[2]-0.3);
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.3);
@@ -109,38 +100,65 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.6);
     glEnd();
     
-    
+    //trave dir
+    glBegin(GL_LINES);
+        glVertex3f(V1[0], V1[1], V1[2]-0.3);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.3);
+
+        glVertex3f(V1[0], V1[1], V1[2]-0.6);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.6);
+
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.3);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.6);
+    glEnd();
+}
+
+void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
+{
     glColor3f(1,1,1);
+    
+    glBegin(GL_LINE_LOOP);
+        glVertex3fv(V0);
+        glVertex3fv(V1);
+        glVertex3fv(V5);
+        glVertex3fv(V4);
+    glEnd();
+    //
+
+    traves(V0, V1);
+    
+    //lado esquerdo
     glBegin(GL_LINES);
     	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.2);
         glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
     glEnd();
     
-    glColor3f(1,1,1);
     glBegin(GL_LINES);
     	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.8);
         glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
     glEnd();
 
-	glColor3f(1,1,1);
-    glBegin(GL_LINES);
+	glBegin(GL_LINES);
     	glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
         glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
     glEnd();
-    
-    glColor3f(1,0,0);
-    glBegin(GL_LINE_LOOP);
-        glVertex3f(V1[0], V1[1]+10, V1[2]);
-        glVertex3fv(V5);
+
+    // lado direito
+    glBegin(GL_LINES);
+    	glVertex3f(V1[0], V1[1]+0.1, V1[2]-0.2);
+        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2);
     glEnd();
     
-    glColor3f(1,0,0);
-    glBegin(GL_LINE_LOOP);
-        glVertex3f(V1[0], V1[1], V1[2]);
-        glVertex3fv(V5);
+    glBegin(GL_LINES);
+    	glVertex3f(V1[0], V1[1]+0.1, V1[2]-0.8);
+        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8);
     glEnd();
-    
-    glPopMatrix();
+
+	glBegin(GL_LINES);
+    	glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8);
+        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2);
+    glEnd();
+
     glColor3f(0,1,0);
     
     checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(-(V1[1]+15));
@@ -310,7 +328,7 @@ int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowSize(600, 600);
+    glutInitWindowSize(720, 600);
     glutInitWindowPosition(100, 150);
     glutCreateWindow("Campo");
     
