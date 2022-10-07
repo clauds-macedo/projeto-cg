@@ -8,13 +8,18 @@
 #define ALTURA_TRAVE 7.32
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.5f
+#define CX_INICIAL 0.0f
+#define CY_INICIAL 15.0f
+#define CZ_INICIAL 30.0f
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
-GLfloat Cx = 0, Cy = 15, Cz = 30;
+GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
 GLfloat atX = 0, atY = 0, atZ = 0;
 GLfloat T = 0;
+
 int enabled = 1;
+int visao_ceu = 1;
 int goalEsq = 0;
 int goalDir = 0;
 
@@ -339,20 +344,24 @@ void init()
     glMatrixMode(GL_MODELVIEW);
 }
 
+void specialKeys(int key, int x, int y)
+{
+    switch(key) {
+        case (GLUT_KEY_LEFT): atX -= 0.5;   break;
+        case (GLUT_KEY_RIGHT): atX += 0.5;  break;
+
+        case (GLUT_KEY_UP): atY += 0.5;     break;
+        case (GLUT_KEY_DOWN): atY -= 0.5;   break;
+        
+        default:    break;
+    }
+}
+
 void keyboard(unsigned char key, int x, int y)
 {
     printf("%f\n", ROTACAO_BOLA);
     switch (key) 
-    {
-        case '1': atX -= 0.5;   break;
-        case '!': atX += 0.5;   break;
-        
-        case '2': atY -= 0.5;   break;
-        case '@': atY += 0.5;   break;
-        
-        case '3': atZ -= 0.5;   break;
-        case '#': atZ += 0.5;   break;
-        
+    {        
         case 'x': Cx -= 0.5;    break;
         case 'X': Cx += 0.5;    break;
         
@@ -392,15 +401,34 @@ void keyboard(unsigned char key, int x, int y)
             subtrair_rotacao_bola();
             break;
         case ' ':
+            // if (visao_ceu) {
+            //     Cx = bola.transX+5;
+            //     Cy = 1.75f;
+            //     Cz = bola.transZ;
 
-            if (enabled) {
-                glutIdleFunc(NULL);
-                enabled = 0;
-            }
-            else {
-                glutIdleFunc(Spin);
-                enabled = 1;
-            }
+            //     atX = bola.transX;
+            //     atY = 0.5;
+            //     atZ = bola.transZ;
+            // }
+            // else {
+            //     Cx = CX_INICIAL;
+            //     Cy = CY_INICIAL;
+            //     Cz = CZ_INICIAL;
+
+            //     atX = 0.0f;
+            //     atY = 0.0f;
+            //     atZ = 0.0f;
+            // }
+
+            // visao_ceu = !visao_ceu;
+            // if (enabled) {
+            //     glutIdleFunc(NULL);
+            //     enabled = 0;
+            // }
+            // else {
+            //     glutIdleFunc(Spin);
+            //     enabled = 1;
+            // }
             break;
          
         default: break;
@@ -444,6 +472,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutIdleFunc(Spin);
     glutReshapeFunc(reshape);
+    glutSpecialFunc(specialKeys);
     init();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
