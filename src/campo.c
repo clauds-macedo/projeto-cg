@@ -162,7 +162,7 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 
     traves(V0, V1);
 	glColor3f(1,1,1);
-    //a grande baleia que é a sua mãe ( centro )
+    // centro do campo
     glBegin(GL_LINES);
     	glVertex3f(0, V0[1]+0.1,V0[2]-0.01);
     	glVertex3f(0, V0[1]+0.1, -V0[2]+0.01);
