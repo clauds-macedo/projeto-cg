@@ -6,8 +6,8 @@
 #include <math.h>
 
 #define ALTURA_TRAVE 7.32
-#define DIAMETRO_BOLA 4.0f
-#define TRANSLACAO_BOLA 1.0f
+#define DIAMETRO_BOLA 0.5f
+#define TRANSLACAO_BOLA 0.5f
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
