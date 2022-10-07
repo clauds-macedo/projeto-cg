@@ -38,7 +38,8 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 	float y = 0; 
     
 	glBegin(GL_LINE_LOOP); 
-	for(int ii = 0; ii < num_segments; ii++) 
+	int ii = 0;
+	for(; ii < num_segments; ii++) 
 	{ 
 		glVertex2f(x + cx, y + cy);//output vertex 
         
@@ -72,6 +73,7 @@ void resetRotacao()
 
 void resetBallPosition() {
 	bola.transX = 0;
+	bola.transZ = 0;
 }
 
 void Spin()
@@ -150,7 +152,6 @@ void traves(GLfloat V0[], GLfloat V1[])
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 {
     glColor3f(1,1,1);
-    
     glBegin(GL_LINE_LOOP);
         glVertex3fv(V0);
         glVertex3fv(V1);
@@ -160,7 +161,14 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     //
 
     traves(V0, V1);
+	glColor3f(1,1,1);
+    //a grande baleia que é a sua mãe ( centro )
+    glBegin(GL_LINES);
+    	glVertex3f(0, V0[1]+0.1,V0[2]-0.01);
+    	glVertex3f(0, V0[1]+0.1, -V0[2]+0.01);
+    glEnd();
     
+    glColor3f(1,1,1);
     //lado esquerdo
     glBegin(GL_LINES);
     	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.2);
