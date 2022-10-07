@@ -146,16 +146,20 @@ void RenderString(float x, float y, void *font, const char* string)
 
 void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 	// printf("%f %f\n", goalPos, bola.transZ);
-	if (bola.transX <= goalPos && (bola.transZ <= 1.5 && bola.transZ >= -1.5)) {
-		goalEsq++;
-		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
+	if (bola.transX <= goalPos) {
+        if (bola.transZ <= 1.5 && bola.transZ >= -1.5) {
+            goalEsq++;
+    		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
+        }
 		resetBallPosition();
-	}
-	else if (bola.transX >= -goalPos && (bola.transZ <= 1.5 && bola.transZ >= -1.5)) {
-		goalDir++;
-		printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
+    }
+	else if (bola.transX >= -goalPos) {
+        if (bola.transZ <= 1.5 && bola.transZ >= -1.5) {
+            goalDir++;
+            printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
+        }
 		resetBallPosition();
-	}
+    }
 	
 	char str[80];
     sprintf(str, "%d X %d", goalEsq, goalDir);
