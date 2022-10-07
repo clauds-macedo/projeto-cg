@@ -6,6 +6,10 @@
 #include <math.h>
 
 #define ALTURA_TRAVE 7.32
+#define DIAMETRO_BOLA 4.0f
+#define TRANSLACAO_BOLA 1.0f
+
+GLfloat ROTACAO_BOLA = 0.0f;
 
 GLfloat Cx = 0, Cy = 15, Cz = 30;
 GLfloat atX = 0, atY = 0, atZ = 0;
@@ -63,12 +67,41 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 	glEnd(); 
 }
 
-
-void resetRotacao()
+void subtrair_rotacao_bola()
 {
-    if (bola.rotX == 1) bola.rotX = 0; 
-    if (bola.rotY == 1) bola.rotY = 0; 
-    if (bola.rotZ == 1) bola.rotZ = 0; 
+    ROTACAO_BOLA -= 45;
+    if (ROTACAO_BOLA < 0)
+        ROTACAO_BOLA = 360;
+    glutPostRedisplay();
+}
+
+void somar_rotacao_bola() 
+{
+    ROTACAO_BOLA += 45;
+    if (ROTACAO_BOLA > 360)
+        ROTACAO_BOLA = 0;
+    glutPostRedisplay();
+}
+
+
+void resetRotacaoExcept(char eixo)
+{ //eixo pode ser x, y, z
+    switch(eixo) 
+    {
+        case 'x':
+            if (bola.rotY == 1) bola.rotY = 0;
+            if (bola.rotZ == 1) bola.rotZ = 0;
+            break;
+        case 'y':
+            if (bola.rotX == 1) bola.rotX = 0;
+            if (bola.rotZ == 1) bola.rotZ = 0;
+            break;
+        case 'z':
+            if (bola.rotY == 1) bola.rotY = 0;
+            if (bola.rotX == 1) bola.rotX = 0;
+            break;
+        default:    break;
+    }
 }
 
 void resetBallPosition() {
@@ -76,12 +109,20 @@ void resetBallPosition() {
 	bola.transZ = 0;
 }
 
+void SpinBack()
+{
+    T -= 1;
+    if (T < 0)
+        T = 360;
+    glutPostRedisplay();
+}
+
 void Spin()
 {
-//    T += 1;
-//    if (T > 360)
-//        T = 0;
-//    glutPostRedisplay();
+   T += 1;
+   if (T > 360)
+       T = 0;
+   glutPostRedisplay();
 }
 
 void printAr(GLfloat a[], char* name)
@@ -104,7 +145,7 @@ void RenderString(float x, float y, void *font, const char* string)
 }
 
 void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
-	printf("%f %f\n", goalPos, bola.transZ);
+	// printf("%f %f\n", goalPos, bola.transZ);
 	if (bola.transX <= goalPos && (bola.transZ <= 1.5 && bola.transZ >= -1.5)) {
 		goalEsq++;
 		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
@@ -230,6 +271,17 @@ void Cube (
     fieldLines(V0, V1, V5, V4);    
 }
 
+void desenha_bola()
+{
+    glPushMatrix();
+        glColor3f(bola.r, bola.g, bola.b);
+        glTranslatef(bola.transX, 0.5, bola.transZ);
+        glScalef(DIAMETRO_BOLA, DIAMETRO_BOLA, DIAMETRO_BOLA);
+        glRotatef(ROTACAO_BOLA, bola.rotX, bola.rotY, bola.rotZ);
+        glutWireSphere(0.5f, 10, 10);
+    glPopMatrix();
+}
+
 void display()
 {
     //vertices de um cubo
@@ -256,19 +308,13 @@ void display()
     );
     
     glPushMatrix();
-        glRotatef(T, 0, 1, 0);
+        // glRotatef(T, 0, 1, 0);
         glScalef(30, 0.5, 10);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
     
-    // glLoadIdentity();
-    glPushMatrix();
-        glColor3f(bola.r, bola.g, bola.b);
-        glTranslatef(bola.transX, 0.8, bola.transZ);
-        glRotatef(T, 0, 1, 1);
-        glutWireSphere(0.5f, 18, 18);
-    glPopMatrix();
-    
+    desenha_bola();
+
     glTranslatef(0, 0.29, 0);
     glRotatef(90, 1, 0, 0);
     DrawCircle(0, 0, 1.5, 18);
@@ -291,6 +337,7 @@ void init()
 
 void keyboard(unsigned char key, int x, int y)
 {
+    printf("%f\n", ROTACAO_BOLA);
     switch (key) 
     {
         case '1': atX -= 0.5;   break;
@@ -312,19 +359,34 @@ void keyboard(unsigned char key, int x, int y)
         case 'Z': Cz += 0.5;    break;
 
         case 'w': 
-            bola.transZ -= 0.5;  
-            resetRotacao();
-            bola.rotZ = 1;
+        case 'W':
+            bola.transZ -= TRANSLACAO_BOLA;
+            bola.rotX = 1;
+            somar_rotacao_bola();
+            resetRotacaoExcept('x');
             break;
-        case 's': 
-            bola.transZ += 0.5;  
-            resetRotacao();
-            bola.rotZ = 1;
+        case 's':
+        case 'S': 
+            bola.transZ += TRANSLACAO_BOLA;  
+            bola.rotX = 1;
+            resetRotacaoExcept('x');
+            subtrair_rotacao_bola();
             break;
 
-        case 'a': bola.transX -= 0.5;  break;
-        case 'd': bola.transX += 0.5;  break;
-
+        case 'a':
+        case 'A':
+            bola.transX -= TRANSLACAO_BOLA;
+            bola.rotZ = 1;
+            resetRotacaoExcept('z');
+            somar_rotacao_bola();
+            break;
+        case 'd': 
+        case 'D':
+            bola.transX += TRANSLACAO_BOLA;
+            bola.rotZ = 1;
+            resetRotacaoExcept('z');
+            subtrair_rotacao_bola();
+            break;
         case ' ':
 
             if (enabled) {
