@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define ALTURA_TRAVE 7.32
 
@@ -24,7 +25,44 @@ Bola bola = {
         0.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 1.0f
     };
- 
+
+void DrawCircle(float cx, float cy, float r, int num_segments) 
+{ 
+	float theta = (float)2 * 3.1415926 / (num_segments); 
+	float tangetial_factor = tanf(theta);//calculate the tangential factor 
+
+	float radial_factor = cosf(theta);//calculate the radial factor 
+	
+	float x = r;//we start at angle = 0 
+
+	float y = 0; 
+    
+	glBegin(GL_LINE_LOOP); 
+	for(int ii = 0; ii < num_segments; ii++) 
+	{ 
+		glVertex2f(x + cx, y + cy);//output vertex 
+        
+		//calculate the tangential vector 
+		//remember, the radial vector is (x, y) 
+		//to get the tangential vector we flip those coordinates and negate one of them 
+
+		float tx = -y; 
+		float ty = x; 
+        
+		//add the tangential vector 
+
+		x += tx * tangetial_factor; 
+		y += ty * tangetial_factor; 
+        
+		//correct using the radial factor 
+
+		x *= radial_factor; 
+		y *= radial_factor; 
+	} 
+	glEnd(); 
+}
+
+
 void resetRotacao()
 {
     if (bola.rotX == 1) bola.rotX = 0; 
@@ -75,10 +113,6 @@ void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 		printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
 		resetBallPosition();
 	}
-	
-	char bufferEsq[20];
-	char bufferDir[20];
-	char separator[] = {" X "};
 	
 	char str[80];
     sprintf(str, "%d X %d", goalEsq, goalDir);
@@ -164,7 +198,6 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(-(V1[1]+15));
 }
 
-
 void Square(GLfloat A[], GLfloat B[], GLfloat C[], GLfloat D[])
 {
     glBegin(GL_POLYGON);
@@ -187,8 +220,7 @@ void Cube (
     Square(V1, V5, V6, V2); //right
     Square(V3, V2, V6, V7); // bottom
     Square(V0, V1, V5, V4); //top
-    fieldLines(V0, V1, V5, V4);
-
+    fieldLines(V0, V1, V5, V4);    
 }
 
 void display()
@@ -225,11 +257,14 @@ void display()
     // glLoadIdentity();
     glPushMatrix();
         glColor3f(bola.r, bola.g, bola.b);
-        glTranslatef(bola.transX, 1, bola.transZ);
+        glTranslatef(bola.transX, 0.8, bola.transZ);
         glRotatef(T, 0, 1, 1);
-        glutWireSphere(0.5f, 15, 15);
+        glutWireSphere(0.5f, 18, 18);
     glPopMatrix();
-
+    
+    glTranslatef(0, 0.29, 0);
+    glRotatef(90, 1, 0, 0);
+    DrawCircle(0, 0, 1.5, 18);
 
     glutSwapBuffers();
 }
