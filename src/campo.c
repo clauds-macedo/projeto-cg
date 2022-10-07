@@ -104,13 +104,13 @@ void RenderString(float x, float y, void *font, const char* string)
 }
 
 void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
-	printf("%f %f\n", goalPos, bola.transX);
-	if (bola.transX <= goalPos) {
+	printf("%f %f\n", goalPos, bola.transZ);
+	if (bola.transX <= goalPos && (bola.transZ <= 1.5 && bola.transZ >= -1.5)) {
 		goalEsq++;
 		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
 		resetBallPosition();
 	}
-	else if (bola.transX >= -goalPos) {
+	else if (bola.transX >= -goalPos && (bola.transZ <= 1.5 && bola.transZ >= -1.5)) {
 		goalDir++;
 		printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
 		resetBallPosition();
@@ -161,14 +161,13 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     //
 
     traves(V0, V1);
-	glColor3f(1,1,1);
-    // centro do campo
+	
+	// centro do campo
     glBegin(GL_LINES);
     	glVertex3f(0, V0[1]+0.1,V0[2]-0.01);
     	glVertex3f(0, V0[1]+0.1, -V0[2]+0.01);
     glEnd();
     
-    glColor3f(1,1,1);
     //lado esquerdo
     glBegin(GL_LINES);
     	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.2);
@@ -200,7 +199,7 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     	glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8);
         glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2);
     glEnd();
-
+    
     glColor3f(0,1,0);
     
     checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(-(V1[1]+15));
