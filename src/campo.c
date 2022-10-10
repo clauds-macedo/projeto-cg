@@ -10,7 +10,7 @@
 #define TRANSLACAO_BOLA 0.5f
 #define CX_INICIAL 0.0f
 #define CY_INICIAL 15.0f
-#define CZ_INICIAL 30.0f
+#define CZ_INICIAL 25.0f
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
@@ -176,31 +176,32 @@ void traves(GLfloat V0[], GLfloat V1[])
 {
     // trave esq
     glBegin(GL_LINES);
-        glVertex3f(V0[0], V0[1], V0[2]-0.3);
-        glVertex3f(V0[0], V0[1]+3, V0[2]-0.3);
+        glVertex3f(V0[0], V0[1], V0[2]-0.35);
+        glVertex3f(V0[0], V0[1]+3, V0[2]-0.35);
         
-        glVertex3f(V0[0], V0[1], V0[2]-0.6);
-        glVertex3f(V0[0], V0[1]+3, V0[2]-0.6);
+        glVertex3f(V0[0], V0[1], V0[2]-0.65);
+        glVertex3f(V0[0], V0[1]+3, V0[2]-0.65);
 
-        glVertex3f(V0[0], V0[1]+3, V0[2]-0.3);
-        glVertex3f(V0[0], V0[1]+3, V0[2]-0.6);
+        glVertex3f(V0[0], V0[1]+3, V0[2]-0.35);
+        glVertex3f(V0[0], V0[1]+3, V0[2]-0.65);
     glEnd();
     
     //trave dir
     glBegin(GL_LINES);
-        glVertex3f(V1[0], V1[1], V1[2]-0.3);
-        glVertex3f(V1[0], V1[1]+3, V1[2]-0.3);
+        glVertex3f(V1[0], V1[1], V1[2]-0.35);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.35);
 
-        glVertex3f(V1[0], V1[1], V1[2]-0.6);
-        glVertex3f(V1[0], V1[1]+3, V1[2]-0.6);
+        glVertex3f(V1[0], V1[1], V1[2]-0.65);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.65);
 
-        glVertex3f(V1[0], V1[1]+3, V1[2]-0.3);
-        glVertex3f(V1[0], V1[1]+3, V1[2]-0.6);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.35);
+        glVertex3f(V1[0], V1[1]+3, V1[2]-0.65);
     glEnd();
 }
 
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 {
+    glLineWidth(2.0f);
     glColor3f(1,1,1);
     glBegin(GL_LINE_LOOP);
         glVertex3fv(V0);
@@ -214,8 +215,8 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 	
 	// centro do campo
     glBegin(GL_LINES);
-    	glVertex3f(0, V0[1]+0.1,V0[2]-0.01);
-    	glVertex3f(0, V0[1]+0.1, -V0[2]+0.01);
+    	glVertex3f(0, V0[1]+0.1,V0[2]-0.00);
+    	glVertex3f(0, V0[1]+0.1, -V0[2]+0.02);
     glEnd();
     
     //lado esquerdo
