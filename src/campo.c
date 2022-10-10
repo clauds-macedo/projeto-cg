@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 
-#define ALTURA_TRAVE 7.32
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.5f
 #define CX_INICIAL 0.0f
@@ -16,10 +15,7 @@ GLfloat ROTACAO_BOLA = 0.0f;
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
 GLfloat atX = 0, atY = 0, atZ = 0;
-GLfloat T = 0;
 
-int enabled = 1;
-int visao_ceu = 1;
 int goalEsq = 0;
 int goalDir = 0;
 
@@ -114,31 +110,6 @@ void resetBallPosition() {
 	bola.transZ = 0;
 }
 
-void SpinBack()
-{
-    T -= 1;
-    if (T < 0)
-        T = 360;
-    glutPostRedisplay();
-}
-
-void Spin()
-{
-   T += 1;
-   if (T > 360)
-       T = 0;
-   glutPostRedisplay();
-}
-
-void printAr(GLfloat a[], char* name)
-{
-    printf("%s: ", name);
-    int i;
-    for (i = 0; i < 3; i++) 
-        printf("%f ",a[i]);
-    printf("\n");
-}
-
 void RenderString(float x, float y, void *font, const char* string)
 {  
   	char *c;
@@ -149,19 +120,16 @@ void RenderString(float x, float y, void *font, const char* string)
   	glutBitmapString(font, string);
 }
 
-void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
-	// printf("%f %f\n", goalPos, bola.transZ);
+void checkGoal(GLfloat goalPos) {
 	if (bola.transX <= goalPos) {
         if (bola.transZ <= 1.5 && bola.transZ >= -1.5) {
             goalEsq++;
-    		printf("FOI FOI FOI FOI FOI FOI FOI FOI DELEEEEE");	
         }
 		resetBallPosition();
     }
 	else if (bola.transX >= -goalPos) {
         if (bola.transZ <= 1.5 && bola.transZ >= -1.5) {
             goalDir++;
-            printf("GOOOOOOOOOOOOOOOOOOOL DA ALEMANHA");	
         }
 		resetBallPosition();
     }
@@ -169,7 +137,7 @@ void checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(GLfloat goalPos) {
 	char str[80];
     sprintf(str, "%d X %d", goalEsq, goalDir);
     
-    RenderString(0.0f, 5.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
+    RenderString(0.0f, 12.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
 }
 
 void traves(GLfloat V0[], GLfloat V1[])
@@ -253,7 +221,7 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
     
     glColor3f(0,1,0);
     
-    checkGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOL(-(V1[1]+15));
+    checkGoal(-(V1[1]+15));
 }
 
 void Square(GLfloat A[], GLfloat B[], GLfloat C[], GLfloat D[])
@@ -360,7 +328,6 @@ void specialKeys(int key, int x, int y)
 
 void keyboard(unsigned char key, int x, int y)
 {
-    printf("%f\n", ROTACAO_BOLA);
     switch (key) 
     {        
         case 'x': Cx -= 0.5;    break;
@@ -401,37 +368,7 @@ void keyboard(unsigned char key, int x, int y)
             resetRotacaoExcept('z');
             subtrair_rotacao_bola();
             break;
-        case ' ':
-            // if (visao_ceu) {
-            //     Cx = bola.transX+5;
-            //     Cy = 1.75f;
-            //     Cz = bola.transZ;
-
-            //     atX = bola.transX;
-            //     atY = 0.5;
-            //     atZ = bola.transZ;
-            // }
-            // else {
-            //     Cx = CX_INICIAL;
-            //     Cy = CY_INICIAL;
-            //     Cz = CZ_INICIAL;
-
-            //     atX = 0.0f;
-            //     atY = 0.0f;
-            //     atZ = 0.0f;
-            // }
-
-            // visao_ceu = !visao_ceu;
-            // if (enabled) {
-            //     glutIdleFunc(NULL);
-            //     enabled = 0;
-            // }
-            // else {
-            //     glutIdleFunc(Spin);
-            //     enabled = 1;
-            // }
-            break;
-         
+                 
         default: break;
     }
     
@@ -465,13 +402,12 @@ int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowSize(720, 600);
+    glutInitWindowSize(800, 600);
     glutInitWindowPosition(100, 150);
     glutCreateWindow("Campo");
     
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
-    glutIdleFunc(Spin);
     glutReshapeFunc(reshape);
     glutSpecialFunc(specialKeys);
     init();
