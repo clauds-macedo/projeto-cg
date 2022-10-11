@@ -43,6 +43,116 @@ Camera camera = {
     0, 0, 0
 };
 
+typedef struct Point {
+	GLint x;
+	GLint y;
+} Point;
+
+
+void drawPixel(Point p) {
+	glBegin(GL_QUADS); {
+		glVertex3f(p.x - 0.5, p.y + 0.5, 0);
+		glVertex3f(p.x + 0.5, p.y + 0.5, 0);
+		glVertex3f(p.x + 0.5, p.y - 0.5, 0);
+		glVertex3f(p.x - 0.5, p.y - 0.5, 0);
+	} glEnd();
+}
+
+void drawLine(Point p1, Point p2) {
+	Point pixel;			
+	int dx = abs(p1.x - p2.x);
+	int dy = abs(p1.y - p2.y);	
+
+	if (dx >= dy) {
+
+
+		int p = 2 * dy - dx;
+		int const1 = 2 * dy;		
+		int const2 = 2 * (dy - dx);	
+
+	
+		if (p1.x < p2.x) {
+			pixel.x = p1.x;
+			pixel.y = p1.y;
+		}
+		else {	
+			pixel.x = p2.x;
+			pixel.y = p2.y;
+			p2.x = p1.x;
+			p2.y = p1.y;
+		}
+
+		drawPixel(pixel);
+
+		while (pixel.x < p2.x) {
+			pixel.x = pixel.x + 1;
+
+			if (p < 0) {
+				p += const1;
+			}
+
+			else {
+				if (pixel.y < p2.y) {
+					pixel.y++;
+					p += const2;
+				}
+				else {
+					pixel.y--;;
+					p += const2;
+				}
+			}
+			
+			drawPixel(pixel);
+
+		}
+	}
+
+	else {
+		int p = 2 * dx - dy;
+		int const1 = 2 * dx;
+		int const2 = 2 * (dx - dy);
+
+
+		if (p1.y < p2.y) {
+			pixel.x = p1.x;
+			pixel.y = p1.y;
+		}
+	
+		else {
+			pixel.x = p2.x;
+			pixel.y = p2.y;
+			p2.x = p1.x;
+			p2.y = p1.y;
+		}
+
+	
+		drawPixel(pixel);
+
+		while (pixel.y < p2.y) {
+			pixel.y = pixel.y + 1;
+
+
+			if (p < 0) {
+				p += const1;
+			}
+
+			else {
+				if (pixel.x > p2.x) {
+					pixel.x--;
+					p += const2;
+				}
+				else {
+					pixel.x++;
+					p += const2;
+				}
+			}
+
+			drawPixel(pixel);
+
+		}
+	}
+}
+
 void resetCamera()
 {
     camera.Cx = CX_INICIAL;
@@ -56,11 +166,11 @@ void resetCamera()
 void DrawCircle(float cx, float cy, float r, int num_segments) 
 { 
 	float theta = (float)2 * 3.1415926 / (num_segments); 
-	float tangetial_factor = tanf(theta);//calculate the tangential factor 
+	float tangetial_factor = tanf(theta);
 
-	float radial_factor = cosf(theta);//calculate the radial factor 
+	float radial_factor = cosf(theta);
 	
-	float x = r;//we start at angle = 0 
+	float x = r;
 
 	float y = 0; 
     
@@ -68,21 +178,15 @@ void DrawCircle(float cx, float cy, float r, int num_segments)
 	int ii = 0;
 	for(; ii < num_segments; ii++) 
 	{ 
-		glVertex2f(x + cx, y + cy);//output vertex 
-        
-		//calculate the tangential vector 
-		//remember, the radial vector is (x, y) 
-		//to get the tangential vector we flip those coordinates and negate one of them 
+		glVertex2f(x + cx, y + cy);
+
 
 		float tx = -y; 
 		float ty = x; 
         
-		//add the tangential vector 
-
 		x += tx * tangetial_factor; 
 		y += ty * tangetial_factor; 
         
-		//correct using the radial factor 
 
 		x *= radial_factor; 
 		y *= radial_factor; 
@@ -201,8 +305,9 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
         glVertex3fv(V4);
     glEnd();
     //
-
+	Point p1 = {0.5, 1}, p2= {1, 1};
     traves(V0, V1);
+    drawLine(p1, p2);
 	
 	// centro do campo
     glBegin(GL_LINES);
