@@ -6,10 +6,12 @@
 #include <math.h>
 
 #define DIAMETRO_BOLA 0.5f
-#define TRANSLACAO_BOLA 0.5f
+#define TRANSLACAO_BOLA 0.3f
 #define CX_INICIAL 0.0f
 #define CY_INICIAL 15.0f
 #define CZ_INICIAL 25.0f
+#define Z_MAX_CAMPO 5.5f
+#define Z_MIN_CAMPO -5.5f
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
@@ -25,11 +27,31 @@ typedef struct ball {
     GLfloat r, g, b;
 } Bola;
 
+typedef struct cam {
+    GLfloat Cx, Cy, Cz;
+    GLfloat atX, atY, atZ;
+} Camera;
+
 Bola bola = {
-        0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 1.0f
-    };
+    0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    1.0f, 1.0f, 1.0f
+};
+
+Camera camera = {
+    CX_INICIAL, CY_INICIAL, CZ_INICIAL,
+    0, 0, 0
+};
+
+void resetCamera()
+{
+    camera.Cx = CX_INICIAL;
+    camera.Cy = CY_INICIAL;
+    camera.Cz = CZ_INICIAL;
+    camera.atX = 0.0f;
+    camera.atY = 0.0f;
+    camera.atZ = 0.0f;
+}
 
 void DrawCircle(float cx, float cy, float r, int num_segments) 
 { 
@@ -112,8 +134,6 @@ void resetBallPosition() {
 
 void RenderString(float x, float y, void *font, const char* string)
 {  
-  	char *c;
-
   	glColor3f(1, 1, 1); 
   	glRasterPos2f(x, y);
 
@@ -133,7 +153,10 @@ void checkGoal(GLfloat goalPos) {
         }
 		resetBallPosition();
     }
-	
+    
+    if (bola.transZ >= Z_MAX_CAMPO || bola.transZ <= Z_MIN_CAMPO)
+        resetBallPosition();
+
 	char str[80];
     sprintf(str, "%d X %d", goalEsq, goalDir);
     
@@ -261,10 +284,7 @@ void desenha_bola()
 }
 
 void display()
-{
-    //vertices de um cubo
-    
-    
+{ 
     GLfloat V[8][3] = {
         {-0.5f, 0.5f, 0.5f},
         { 0.5f, 0.5f, 0.5f},
@@ -280,8 +300,8 @@ void display()
     
     glLoadIdentity();
     gluLookAt(
-        Cx, Cy, Cz, //fique 5 passos em frente à origem 
-        atX, atY, atZ, // olhe a origem
+        camera.Cx, camera.Cy, camera.Cz, 
+        camera.atX, camera.atY, camera.atZ,
         0, 1, 0
     );
     
@@ -316,28 +336,29 @@ void init()
 void specialKeys(int key, int x, int y)
 {
     switch(key) {
-        case (GLUT_KEY_LEFT): atX -= 0.5;   break;
-        case (GLUT_KEY_RIGHT): atX += 0.5;  break;
+        case (GLUT_KEY_LEFT): camera.atX -= 0.5;  break;
+        case (GLUT_KEY_RIGHT): camera.atX += 0.5;  break;
 
-        case (GLUT_KEY_UP): atY += 0.5;     break;
-        case (GLUT_KEY_DOWN): atY -= 0.5;   break;
+        case (GLUT_KEY_UP): camera.atY += 0.5;     break;
+        case (GLUT_KEY_DOWN): camera.atY -= 0.5;   break;
         
         default:    break;
     }
+    glutPostRedisplay();
 }
 
 void keyboard(unsigned char key, int x, int y)
 {
     switch (key) 
     {        
-        case 'x': Cx -= 0.5;    break;
-        case 'X': Cx += 0.5;    break;
+        case 'x': camera.Cx -= 0.5;    break;
+        case 'X': camera.Cx += 0.5;    break;
         
-        case 'y': Cy -= 0.5;    break;
-        case 'Y': Cy += 0.5;    break;
+        case 'y': camera.Cy -= 0.5;    break;
+        case 'Y': camera.Cy += 0.5;    break;
 
-        case 'z': Cz -= 0.5;    break;
-        case 'Z': Cz += 0.5;    break;
+        case 'z': camera.Cz -= 0.5;    break;
+        case 'Z': camera.Cz += 0.5;    break;
 
         case 'w': 
         case 'W':
@@ -368,7 +389,8 @@ void keyboard(unsigned char key, int x, int y)
             resetRotacaoExcept('z');
             subtrair_rotacao_bola();
             break;
-                 
+        case 'r':
+        case 'R': resetCamera();    break;
         default: break;
     }
     
@@ -402,7 +424,7 @@ int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(1000, 700);
     glutInitWindowPosition(100, 150);
     glutCreateWindow("Campo");
     
