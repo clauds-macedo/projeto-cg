@@ -44,25 +44,25 @@ Camera camera = {
 };
 
 typedef struct Point {
-	GLint x;
-	GLint y;
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
 } Point;
 
 
 void drawPixel(Point p) {
-	glBegin(GL_QUADS); {
-		glVertex3f(p.x - 0.5, p.y + 0.5, 0);
-		glVertex3f(p.x + 0.5, p.y + 0.5, 0);
-		glVertex3f(p.x + 0.5, p.y - 0.5, 0);
-		glVertex3f(p.x - 0.5, p.y - 0.5, 0);
+	printf("\n%f a\n", p.z);
+	glBegin(GL_LINES); {
+		glVertex3f(p.x - 0.2, p.y, 0);
+		glVertex3f(p.x + 0.2, p.y, p.z);
 	} glEnd();
 }
 
 void drawLine(Point p1, Point p2) {
 	Point pixel;			
-	int dx = abs(p1.x - p2.x);
-	int dy = abs(p1.y - p2.y);	
-
+	float dx = abs(p1.x - p2.x);
+	float dy = abs(p1.y - p2.y);	
+	printf("%d, %d", dx, dy);
 	if (dx >= dy) {
 
 
@@ -85,7 +85,8 @@ void drawLine(Point p1, Point p2) {
 		drawPixel(pixel);
 
 		while (pixel.x < p2.x) {
-			pixel.x = pixel.x + 1;
+			pixel.x = pixel.x + 0.1;
+			printf("%f\n", pixel.x);
 
 			if (p < 0) {
 				p += const1;
@@ -97,8 +98,11 @@ void drawLine(Point p1, Point p2) {
 					p += const2;
 				}
 				else {
-					pixel.y--;;
+					pixel.y--;
 					p += const2;
+				}
+				if (pixel.z < p2.z) {
+					
 				}
 			}
 			
@@ -112,7 +116,7 @@ void drawLine(Point p1, Point p2) {
 		int const1 = 2 * dx;
 		int const2 = 2 * (dx - dy);
 
-
+		printf("chegou aqui");
 		if (p1.y < p2.y) {
 			pixel.x = p1.x;
 			pixel.y = p1.y;
@@ -129,8 +133,8 @@ void drawLine(Point p1, Point p2) {
 		drawPixel(pixel);
 
 		while (pixel.y < p2.y) {
-			pixel.y = pixel.y + 1;
-
+			pixel.y = pixel.y + 0.1;
+			printf("%f, y", pixel.y);
 
 			if (p < 0) {
 				p += const1;
@@ -138,7 +142,7 @@ void drawLine(Point p1, Point p2) {
 
 			else {
 				if (pixel.x > p2.x) {
-					pixel.x--;
+					pixel.x-=0.1;
 					p += const2;
 				}
 				else {
@@ -305,7 +309,7 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
         glVertex3fv(V4);
     glEnd();
     //
-	Point p1 = {0.5, 1}, p2= {1, 1};
+	Point p1 = {-0.1, 1, 0.2}, p2= {0.2, 1, 0.8};
     traves(V0, V1);
     drawLine(p1, p2);
 	
