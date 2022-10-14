@@ -55,147 +55,18 @@ void set_point(Point* p, GLfloat x, GLfloat y, GLfloat z){
     p->z = z;
 }
 
+Point point(GLfloat x, GLfloat y, GLfloat z) {
+    Point new;
+    new.x = x;
+    new.y = y;
+    new.z = z;
+    return new;
+}
+
 void print_point(Point p) {
     printf("%f %f %f\n", p.x, p.y, p.z);
 }
 
-void drawPixel(Point p) {
-	printf("\n%f a\n", p.z);
-	glColor3f(1.0, 0, 0);
-    glPointSize(2.0f);
-    glBegin(GL_POINT);
-		glVertex3f(p.x, p.y, p.z);
-	glEnd();
-    glColor3f(1,1,1);
-}
-
-void drawLine(Point p1, Point p2) {
-	Point pixel;
-    printf("Point 1: ");
-    print_point(p1);
-    printf("Point 2: ");
-    print_point(p2);
-	
-    pixel.x = p1.x;
-    pixel.y = p1.y;
-    pixel.z = p1.z;
-
-    print_point(pixel);
-
-    drawPixel(pixel);
-
-    GLfloat dx = fabs(p2.x - p1.x);
-    GLfloat dy = fabs(p2.y - p1.y);
-    GLfloat dz = fabs(p2.z - p1.z);
-    
-
-    printf("dx: %f dy: %f dz: %f\n", dx, dy, fabs(dz));
-
-    GLfloat xs, ys, zs, par_1, par_2;
-
-    xs = (p2.x > p1.x) ? 0.01 : -0.01;
-    ys = (p2.y > p1.x) ? 0.01 : -0.01;
-    zs = (p2.z > p1.z) ? 0.0001 : -0.01;
-
-    printf("s: %f %f %f\n", xs, ys, zs);
-    glPointSize(2.0f);
-    
-    glBegin(GL_POINTS);
-
-    glVertex3f(pixel.x, pixel.y, pixel.z);
-
-    if (dx >= dy && dx >= dz) {
-        // printf("Entrei em x");
-        par_1 = 2 * dy - dx;
-        par_2 = 2 * dz - dx;
-
-		while (pixel.x < p2.x) {
-			pixel.x += xs;
-
-			// printf("%f\n", pixel.x);
-
-			if (par_1 >= 0) {
-                pixel.y += ys;
-                par_1 -= 2 * dx;
-            }
-
-            if (par_2 >= 0) {
-                p1.z += zs;
-                par_2 -= 2 * dx;
-            }
-
-            par_1 += 2 * dy;
-            par_2 += 2 * dx;
-
-            // printf("X-axis: ");
-            // print_point(pixel);
-
-			// drawPixel(pixel);
-            glVertex3f(pixel.x, pixel.y, pixel.z);
-
-
-		}
-	}
-
-	else if (dy >= dx && dy >= dz) {
-        // printf("Entrei em y");
-
-		par_1 = 2 * dx - dy;
-        par_2 = 2 * dz - dy;
-        
-		while (pixel.y < p2.y) {
-			pixel.y += ys;
-			
-            // printf("%f, y", pixel.y);
-
-			if (par_1 >= 0) {
-                pixel.x += xs;
-                par_1 -= 2 * dy;
-            }
-            if (par_2 >= 0) {
-                pixel.z += zs;
-                par_2 -= 2 * dy;
-            }
-            par_1 += 2 * dx;
-            par_2 -= 2 * dy;
-
-            // printf("Y-axis: ");
-            // print_point(pixel);
-            // drawPixel(pixel);
-            glVertex3f(pixel.x, pixel.y, pixel.z);
-
-		}
-	}
-    else {
-        // printf("Entrei em z\n");
-
-        par_1 = 2 * dy - dz;
-        par_2 = 2 * dx - dz;
-
-        // printf("pixel: %f p2: %f\n", pixel.z, p2.z);
-        while (pixel.z < p2.z) {
-            pixel.z += zs;
-            
-            if (par_1 >= 0) {
-                pixel.y += ys;
-                par_1 -= 2 * dz;
-            }
-            if (par_2 >= 0) {
-                pixel.x += xs;
-                par_2 -= 2 * dz;
-            }
-            par_1 += 2 * dy;
-            par_2 += 2 * dx;
-
-            // printf("Z-axis: ");
-            // print_point(pixel);
-            // drawPixel(pixel);
-            glVertex3f(pixel.x, pixel.y, pixel.z);
-
-        }
-    }
-    glEnd();
-}
 
 void resetCamera()
 {
@@ -337,6 +208,131 @@ void traves(GLfloat V0[], GLfloat V1[])
         glVertex3f(V1[0], V1[1]+3, V1[2]-0.65);
     glEnd();
 }
+void Bresenham3DLine(Point p1, Point p2) {
+	Point pixel;
+    printf("Point 1: ");
+    print_point(p1);
+    printf("Point 2: ");
+    print_point(p2);
+	
+    pixel.x = p1.x;
+    pixel.y = p1.y;
+    pixel.z = p1.z;
+
+    print_point(pixel);
+
+    GLfloat dx = fabs(p2.x - p1.x);
+    GLfloat dy = fabs(p2.y - p1.y);
+    GLfloat dz = fabs(p2.z - p1.z);
+    
+
+    // printf("dx: %f dy: %f dz: %f\n", dx, dy, fabs(dz));
+
+    GLfloat xs, ys, zs, par_1, par_2;
+
+    xs = (p2.x > p1.x) ? 0.001 : -0.001;
+    ys = (p2.y > p1.x) ? 0.001 : -0.001;
+    zs = (p2.z > p1.z) ? 0.001 : -0.001;
+
+    printf("s: %f %f %f\n", xs, ys, zs);
+    glPointSize(2.0f);
+    
+    glBegin(GL_POINTS);
+
+    glVertex3f(pixel.x, pixel.y, pixel.z);
+
+    if (dx >= dy && dx >= dz) {
+        // printf("Entrei em x");
+        par_1 = 2 * dy - dx;
+        par_2 = 2 * dz - dx;
+
+		while (pixel.x < p2.x) {
+			pixel.x += xs;
+
+			// printf("%f\n", pixel.x);
+
+			if (par_1 >= 0) {
+                pixel.y += ys;
+                par_1 -= 2 * dx;
+            }
+
+            if (par_2 >= 0) {
+                p1.z += zs;
+                par_2 -= 2 * dx;
+            }
+
+            par_1 += 2 * dy;
+            par_2 += 2 * dx;
+
+            // printf("X-axis: ");
+            // print_point(pixel);
+
+			// drawPixel(pixel);
+            glVertex3f(pixel.x, pixel.y, pixel.z);
+
+
+		}
+	}
+
+	else if (dy >= dx && dy >= dz) {
+        // printf("Entrei em y");
+
+		par_1 = 2 * dx - dy;
+        par_2 = 2 * dz - dy;
+        
+		while (pixel.y < p2.y) {
+			pixel.y += ys;
+			
+            // printf("%f, y", pixel.y);
+
+			if (par_1 >= 0) {
+                pixel.x += xs;
+                par_1 -= 2 * dy;
+            }
+            if (par_2 >= 0) {
+                pixel.z += zs;
+                par_2 -= 2 * dy;
+            }
+            par_1 += 2 * dx;
+            par_2 -= 2 * dy;
+
+            // printf("Y-axis: ");
+            // print_point(pixel);
+            // drawPixel(pixel);
+            glVertex3f(pixel.x, pixel.y, pixel.z);
+
+		}
+	}
+    else {
+        // printf("Entrei em z\n");
+
+        par_1 = 2 * dy - dz;
+        par_2 = 2 * dx - dz;
+
+        // printf("pixel: %f p2: %f\n", pixel.z, p2.z);
+        while (pixel.z < p2.z) {
+            pixel.z += zs;
+            
+            if (par_1 >= 0) {
+                pixel.y += ys;
+                par_1 -= 2 * dz;
+            }
+            if (par_2 >= 0) {
+                pixel.x += xs;
+                par_2 -= 2 * dz;
+            }
+            par_1 += 2 * dy;
+            par_2 += 2 * dx;
+
+            // printf("Z-axis: ");
+            // print_point(pixel);
+            // drawPixel(pixel);
+            glVertex3f(pixel.x, pixel.y, pixel.z);
+
+        }
+    }
+    glEnd();
+}
 
 void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
 {
@@ -348,55 +344,21 @@ void fieldLines(GLfloat V0[], GLfloat V1[], GLfloat V5[], GLfloat V4[])
         glVertex3fv(V5);
         glVertex3fv(V4);
     glEnd();
-    //
-	// Point p1 = {-0.1, 1, 0.2}, p2= {0.2, 1, 0.8};
-    
+        
     traves(V0, V1);
     
-    Point p1, p2;
-    set_point(&p1, 0, V0[1]+0.1, V0[2]-0.00);
-    set_point(&p2, 0, V0[1] + 0.1, -V0[2]+0.02);
-
-    printf("coordZ: %f\n", -p2.z);
-    drawLine(p2, p1);
+    // centro do campo
+    Bresenham3DLine(point(0, V0[1]+0.1, -V0[2]+0.02), point(0, V0[1]+0.1, V0[2]-0.00));
 	
-	// centro do campo
-    // glBegin(GL_LINES);
-    // 	glVertex3f(0, V0[1]+0.1,V0[2]-0.00);
-    // 	glVertex3f(0, V0[1]+0.1, -V0[2]+0.02);
-    // glEnd();
-    
-    //lado esquerdo
-    glBegin(GL_LINES);
-    	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.2);
-        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
-    glEnd();
-    
-    glBegin(GL_LINES);
-    	glVertex3f(V0[0], V0[1]+0.1, V0[2]-0.8);
-        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
-    glEnd();
-
-	glBegin(GL_LINES);
-    	glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8);
-        glVertex3f(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2);
-    glEnd();
+    // lado esquerdo
+    Bresenham3DLine(point(V0[0], V0[1]+0.1, V0[2]-0.2), point(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2));
+    Bresenham3DLine(point(V0[0], V0[1]+0.1, V0[2]-0.8), point(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8));
+    Bresenham3DLine(point(V0[0]+0.1, V0[1]+0.1, V0[2]-0.8), point(V0[0]+0.1, V0[1]+0.1, V0[2]-0.2));
 
     // lado direito
-    glBegin(GL_LINES);
-    	glVertex3f(V1[0], V1[1]+0.1, V1[2]-0.2);
-        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2);
-    glEnd();
-    
-    glBegin(GL_LINES);
-    	glVertex3f(V1[0], V1[1]+0.1, V1[2]-0.8);
-        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8);
-    glEnd();
-
-	glBegin(GL_LINES);
-    	glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8);
-        glVertex3f(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2);
-    glEnd();
+    Bresenham3DLine(point(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2), point(V1[0], V1[1]+0.1, V1[2]-0.2));
+    Bresenham3DLine(point(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8), point(V1[0], V1[1]+0.1, V1[2]-0.8));
+    Bresenham3DLine(point(V1[0]-0.1, V1[1]+0.1, V1[2]-0.8), point(V1[0]-0.1, V1[1]+0.1, V1[2]-0.2));
     
     glColor3f(0,1,0);
     
