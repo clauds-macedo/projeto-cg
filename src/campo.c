@@ -12,6 +12,9 @@
 #define CZ_INICIAL 25.0f
 #define Z_MAX_CAMPO 5.5f
 #define Z_MIN_CAMPO -5.5f
+#define CYLINDER_RADIUS 1
+#define CYLINDER_HEIGHT 1
+#define CYLINDER_SECTORS 21
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
@@ -77,6 +80,8 @@ void resetCamera()
     camera.atY = 0.0f;
     camera.atZ = 0.0f;
 }
+
+
 
 void DrawCircle(float cx, float cy, float r, int num_segments) 
 { 
@@ -182,9 +187,78 @@ void checkGoal(GLfloat goalPos) {
     RenderString(0.0f, 12.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
 }
 
+void SolidCylinder(float radius, float height, int sectors) {
+	int i;
+	float theta = 2.0f * M_PI / sectors;
+	float top = height / 2.0f;
+	float bottom = -top;
+	
+	glBegin(GL_TRIANGLES);
+	
+	for(i = 0;i < sectors;i++) {
+		float c0 = cos(i * theta);
+		float s0 = sin(i * theta);
+		float c1 = cos((i + 1) * theta);
+		float s1 = sin((i + 1) * theta);
+		
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(0.0f,        top,    0.0f);
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(radius * c0, top,    radius * s0);
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(radius * c1, top,    radius * s1);
+	
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(0.0f,        bottom, 0.0f);
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(radius * c1, bottom, radius * s1);
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(radius * c0, bottom, radius * s0);
+	
+		glNormal3f(c0, 0.0f, s0);
+		glVertex3f(radius * c0, bottom, radius * s0);
+		glNormal3f(c1, 0.0f, s1);
+		glVertex3f(radius * c1, top,    radius * s1);
+		glNormal3f(c0, 0.0f, s0);
+		glVertex3f(radius * c0, top,    radius * s0);
+		
+		glNormal3f(c1, 0.0f, s1);
+		glVertex3f(radius * c1, top,    radius * s1);
+		glNormal3f(c0, 0.0f, s0);
+		glVertex3f(radius * c0, bottom, radius * s0);
+		glNormal3f(c1, 0.0f, s1);
+		glVertex3f(radius * c1, bottom, radius * s1);
+	}
+
+	glEnd();
+}
+
+
 void traves(GLfloat V0[], GLfloat V1[])
 {
-    // trave esq
+    // // trave esquerda
+    // // glPopMatrix();
+    // glutSolidCylinder(1, 0.1, 23, 23);
+    // // glPushMatrix();
+    // //     glTranslatef(V0[0], 2, V0[2]-0.35);
+    // //     glScalef(0.005, 3, 0.005);
+    // //     SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
+    // // glPopMatrix();
+
+    // // glPushMatrix();
+    //     // glTranslatef(V0[0], 2, V0[2]-0.65);
+    //     // glScalef(0.005, 3, 0.005);
+    //     // SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
+    // // glPopMatrix();
+    // glPushMatrix();
+    //     glColor3f(1, 0, 0);
+    //     glTranslatef(V0[0], V0[1]+3, V0[2]-0.50);
+    //     glRotatef(-90, 1, 0, 0);
+    //     glScalef(0.0058, 0.3, 0.0058);
+    //     SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
+    // glPopMatrix();
+    // glColor3f(1, 1, 1);
+    
     glBegin(GL_LINES);
         glVertex3f(V0[0], V0[1], V0[2]-0.35);
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.35);
@@ -208,18 +282,54 @@ void traves(GLfloat V0[], GLfloat V1[])
         glVertex3f(V1[0], V1[1]+3, V1[2]-0.65);
     glEnd();
 }
+
+void plot(GLfloat x, GLfloat y, Point center) {
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+        glVertex2f(x+center.x, y+ center.y);
+    glEnd();
+}
+
+void Bresenham3DCircle(Point center, GLfloat radius)
+{
+    GLfloat x = 0, y = radius, inc = 0.01;
+    GLfloat decision = 5 / 4 - radius;
+    
+    plot(x, y, center);
+
+    while (y > x) {
+        if (decision < 0) {
+            x += inc;
+            decision += 2 * 2 * x + 1;
+        }
+        else {
+            y -= inc;
+            x += inc;
+            decision += 2 * (x - y) + 1;
+        }
+        plot(x, y, center);
+        plot(x, -y, center);
+        plot(-x, y, center);
+        plot(-x, -y, center);
+        plot(y, x, center);
+        plot(-y, x, center);
+        plot(y, -x, center);
+        plot(-y, -x, center);
+    }
+}
+
 void Bresenham3DLine(Point p1, Point p2) {
 	Point pixel;
-    printf("Point 1: ");
-    print_point(p1);
-    printf("Point 2: ");
-    print_point(p2);
+    // printf("Point 1: ");
+    // print_point(p1);
+    // printf("Point 2: ");
+    // print_point(p2);
 	
     pixel.x = p1.x;
     pixel.y = p1.y;
     pixel.z = p1.z;
 
-    print_point(pixel);
+    // print_point(pixel);
 
     GLfloat dx = fabs(p2.x - p1.x);
     GLfloat dy = fabs(p2.y - p1.y);
@@ -234,7 +344,7 @@ void Bresenham3DLine(Point p1, Point p2) {
     ys = (p2.y > p1.x) ? 0.001 : -0.001;
     zs = (p2.z > p1.z) ? 0.001 : -0.001;
 
-    printf("s: %f %f %f\n", xs, ys, zs);
+    // printf("s: %f %f %f\n", xs, ys, zs);
     glPointSize(2.0f);
     
     glBegin(GL_POINTS);
@@ -431,9 +541,12 @@ void display()
     
     desenha_bola();
 
-    glTranslatef(0, 0.29, 0);
-    glRotatef(90, 1, 0, 0);
-    DrawCircle(0, 0, 1.5, 18);
+    // glRotatef(90, 1, 0, 0);
+    glPopMatrix();
+    // glTranslatef(0, 2, 0);
+    Bresenham3DCircle(point(0, 0, 0), 1.5);
+    // DrawCircle(0, 0, 1.5, 18);
+    // glPopMatrix();
 
     glutSwapBuffers();
 }
