@@ -1,3 +1,2 @@
-
-src/cilindro
-src/cylinder.c
+src/*.exe
+src/*.out

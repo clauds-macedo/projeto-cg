@@ -541,12 +541,10 @@ void display()
     
     desenha_bola();
 
-    // glRotatef(90, 1, 0, 0);
-    glPopMatrix();
-    // glTranslatef(0, 2, 0);
-    Bresenham3DCircle(point(0, 0, 0), 1.5);
-    // DrawCircle(0, 0, 1.5, 18);
-    // glPopMatrix();
+    glTranslatef(0, 0.29, 0);
+    glRotatef(90, 1, 0, 0);
+    DrawCircle(0, 0, 1.5, 18);
+
 
     glutSwapBuffers();
 }
