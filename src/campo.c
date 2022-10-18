@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define DIAMETRO_BOLA 0.5f
-#define TRANSLACAO_BOLA 0.3f
+#define TRANSLACAO_BOLA 0.2f
 #define CX_INICIAL 0.0f
 #define CY_INICIAL 15.0f
 #define CZ_INICIAL 25.0f
@@ -236,29 +236,6 @@ void SolidCylinder(float radius, float height, int sectors) {
 
 void traves(GLfloat V0[], GLfloat V1[])
 {
-    // // trave esquerda
-    // // glPopMatrix();
-    // glutSolidCylinder(1, 0.1, 23, 23);
-    // // glPushMatrix();
-    // //     glTranslatef(V0[0], 2, V0[2]-0.35);
-    // //     glScalef(0.005, 3, 0.005);
-    // //     SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
-    // // glPopMatrix();
-
-    // // glPushMatrix();
-    //     // glTranslatef(V0[0], 2, V0[2]-0.65);
-    //     // glScalef(0.005, 3, 0.005);
-    //     // SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
-    // // glPopMatrix();
-    // glPushMatrix();
-    //     glColor3f(1, 0, 0);
-    //     glTranslatef(V0[0], V0[1]+3, V0[2]-0.50);
-    //     glRotatef(-90, 1, 0, 0);
-    //     glScalef(0.0058, 0.3, 0.0058);
-    //     SolidCylinder(CYLINDER_HEIGHT, CYLINDER_RADIUS, CYLINDER_SECTORS);
-    // glPopMatrix();
-    // glColor3f(1, 1, 1);
-    
     glBegin(GL_LINES);
         glVertex3f(V0[0], V0[1], V0[2]-0.35);
         glVertex3f(V0[0], V0[1]+3, V0[2]-0.35);
@@ -300,12 +277,12 @@ void Bresenham3DCircle(Point center, GLfloat radius)
     while (y > x) {
         if (decision < 0) {
             x += inc;
-            decision += 2 * 2 * x + 1;
+            decision += 2 * 2 * x + 0.03;
         }
         else {
             y -= inc;
             x += inc;
-            decision += 2 * (x - y) + 1;
+            decision += 2 * (x - y) + 0.05;
         }
         plot(x, y, center);
         plot(x, -y, center);
@@ -543,7 +520,8 @@ void display()
 
     glTranslatef(0, 0.29, 0);
     glRotatef(90, 1, 0, 0);
-    DrawCircle(0, 0, 1.5, 18);
+    Bresenham3DCircle(point(0,0,0), 1.5);
+    // DrawCircle(0, 0, 1.5, 18);
 
 
     glutSwapBuffers();
