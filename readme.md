@@ -1,12 +1,13 @@
 # Projeto CG - Campo
 Projeto em OpenGL que desenha um campo de futebol com bola, traves e placar, para a disciplina de Computação Gráfica - UFAL 2022.1.
 
-Dupla:
-- Hélder Silva Ferreira Lima
+Alunos:
 - Claudemir Macêdo dos Santos Júnior
+- Hélder Silva Ferreira Lima
 
 # Execução
     cd src
+    make
 
 O projeto dispõe de um `makefile`. Na pasta `src`, basta entrar `make` no terminal. O projeto será compilado e executará.
 
