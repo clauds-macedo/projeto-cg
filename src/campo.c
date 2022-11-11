@@ -16,6 +16,14 @@
 #define CYLINDER_HEIGHT 1
 #define CYLINDER_SECTORS 21
 
+#define LARGURA_ARQUIBANCADA 30
+#define COMPRIMENTO_ARQUIBANCADA 0.5
+#define ALTURA_ARQUIBANCADA 0.5
+#define DISTANCIA_ARQUIBANCADA_POS 15
+#define DISTANCIA_ARQUIBANCADA_NEG -DISTANCIA_ARQUIBANCADA_POS
+
+GLfloat dimGray[] = {0.412f, 0.412f, 0.412f};
+
 GLfloat ROTACAO_BOLA = 0.0f;
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
@@ -467,14 +475,62 @@ void Cube (
     GLfloat V4[],GLfloat V5[],GLfloat V6[], GLfloat V7[]
 )
 {
-    glColor3f(0, 1, 0);
     Square(V0, V1, V2, V3); //front
     Square(V4, V5, V6, V7); //back
     Square(V0, V4, V7, V3); //left
     Square(V1, V5, V6, V2); //right
-    Square(V3, V2, V6, V7); // bottom
+    Square(V3, V2, V6, V7); //bottom
     Square(V0, V1, V5, V4); //top
-    fieldLines(V0, V1, V5, V4);    
+}
+
+void desenha_campo(GLfloat V[][3]) 
+{
+    glPushMatrix();
+        // glRotatef(T, 0, 1, 0);
+        glColor3f(0.133f, 0.545f, 0.133f);
+        glScalef(30, 0.5, 10);
+        Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
+        fieldLines(V[0], V[1], V[5], V[4]);
+    glPopMatrix();
+}
+
+void desenha_arquibancadas(int numero_de_bancos, GLfloat V[]) 
+{
+    int i;
+    GLfloat incremento_y = 0, incremento_z = DISTANCIA_ARQUIBANCADA_NEG;
+    glColor3fv(dimGray);
+    for (i = 0; i < numero_de_bancos; i++) {
+        glPushMatrix();
+        glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
+        glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
+        glutSolidCube(1);
+        glPopMatrix();
+        incremento_z -= 0.5;
+        incremento_y += ALTURA_ARQUIBANCADA;
+    }
+    glPopMatrix();
+    
+}
+
+void desenha_entornos_do_campo(GLfloat V[][3])
+{
+// por baixo e ao redor do campo
+    glPushMatrix();
+        glColor3f(0.000f, 0.392f, 0.000f);
+        glScalef(32, 0.4, 12);
+        Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
+    glPopMatrix();
+
+    // desenhar refletores
+    
+    // desenhar arquibancadas
+    desenha_arquibancadas(20, V[4]);
+    // glPushMatrix();
+    //     glColor3fv(dimGray);
+    //     glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
+    //     glTranslatef(0, V[4][1], V[4][2] + DISTANCIA_ARQUIBANCADA_NEG);
+    //     glutSolidCube(1);
+    // glPopMatrix();
 }
 
 void desenha_bola()
@@ -509,20 +565,16 @@ void display()
         camera.atX, camera.atY, camera.atZ,
         0, 1, 0
     );
-    
-    glPushMatrix();
-        // glRotatef(T, 0, 1, 0);
-        glScalef(30, 0.5, 10);
-        Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
-    glPopMatrix();
-    
+
+    desenha_entornos_do_campo(V);
+    desenha_campo(V);
     desenha_bola();
 
     glTranslatef(0, 0.29, 0);
     glRotatef(90, 1, 0, 0);
     Bresenham3DCircle(point(0,0,0), 1.5);
     // DrawCircle(0, 0, 1.5, 18);
-
+    
 
     glutSwapBuffers();
 }
