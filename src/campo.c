@@ -61,6 +61,10 @@ typedef struct Point {
 	GLfloat z;
 } Point;
 
+void print_vertex(GLfloat vertex[]) {
+    printf("Point: (%f, %f, %f)\n", vertex[0], vertex[1], vertex[2]);
+}
+
 void set_point(Point* p, GLfloat x, GLfloat y, GLfloat z){ 
     p->x = x;
     p->y = y;
@@ -477,6 +481,43 @@ void Square(GLfloat A[], GLfloat B[], GLfloat C[], GLfloat D[])
     glEnd();
 }
 
+void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
+{
+    print_vertex(V0);
+    print_vertex(V1);
+    glBegin(GL_QUAD_STRIP);
+        glVertex3f(V0[0]+somaX, V0[1], V0[2]-0.15);
+        glVertex3f(V0[0]+somaX, V0[1]+2, V0[2]-0.15); //v4
+        glVertex3f(V1[0]+somaX, V1[1], V1[2]+0.15);
+        glVertex3f(V1[0]+somaX, V1[1]+2, V1[2]+0.15);
+    glEnd();
+}
+
+
+void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
+{
+    print_vertex(V0);
+    print_vertex(V1);
+    glBegin(GL_QUAD_STRIP);
+        glVertex3f(V0[0]-0.05, V0[1], V0[2]+somaZ);
+        glVertex3f(V0[0]-0.05, V0[1]+2, V0[2]+somaZ); //v4
+        glVertex3f(V1[0]+0.05, V1[1], V1[2]+somaZ);
+        glVertex3f(V1[0]+0.05, V1[1]+2, V1[2]+somaZ);
+    glEnd();
+}
+
+void placas(GLfloat V0[], GLfloat V1[], GLfloat V4[], GLfloat V5[])
+{
+    glColor3f(1.0f, 0.0f, 0.0f);
+    printf("V4 e V5: \n");
+    placaZ(V4, V5, -0.15f);
+    printf("\nV0 e V1: \n");
+    placaZ(V0, V1, 0.15);
+    placaX(V4, V0, -0.05);
+    placaX(V5, V1, 0.05);
+}
+
+
 void Cube (
     GLfloat V0[], GLfloat V1[], GLfloat V2[], GLfloat V3[], 
     GLfloat V4[],GLfloat V5[],GLfloat V6[], GLfloat V7[]
@@ -498,6 +539,7 @@ void desenha_campo(GLfloat V[][3])
         glScalef(30, 0.5, 10);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
         fieldLines(V[0], V[1], V[5], V[4]);
+        placas(V[0], V[1], V[4], V[5]);
     glPopMatrix();
 }
 
@@ -526,10 +568,9 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 // por baixo e ao redor do campo
     glPushMatrix();
         glColor3f(0.000f, 0.392f, 0.000f);
-        glScalef(32, 0.4, 12);
+        glScalef(34, 0.4, 15);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
-    // desenhar refletores
     
     desenha_arquibancadas(20, V[4], true);
     desenha_arquibancadas(20, V[0], false);
