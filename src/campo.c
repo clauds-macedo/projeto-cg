@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.2f
@@ -78,7 +79,6 @@ void print_point(Point p) {
     printf("%f %f %f\n", p.x, p.y, p.z);
 }
 
-
 void resetCamera()
 {
     camera.Cx = CX_INICIAL;
@@ -88,8 +88,6 @@ void resetCamera()
     camera.atY = 0.0f;
     camera.atZ = 0.0f;
 }
-
-
 
 void DrawCircle(float cx, float cy, float r, int num_segments) 
 { 
@@ -137,7 +135,6 @@ void somar_rotacao_bola()
         ROTACAO_BOLA = 0;
     glutPostRedisplay();
 }
-
 
 void resetRotacaoExcept(char eixo)
 { //eixo pode ser x, y, z
@@ -241,7 +238,6 @@ void SolidCylinder(float radius, float height, int sectors) {
 	glEnd();
 }
 
-
 void traves(GLfloat V0[], GLfloat V1[])
 {
     glBegin(GL_LINES);
@@ -266,6 +262,17 @@ void traves(GLfloat V0[], GLfloat V1[])
         glVertex3f(V1[0], V1[1]+3, V1[2]-0.35);
         glVertex3f(V1[0], V1[1]+3, V1[2]-0.65);
     glEnd();
+}
+
+void desenha_bola()
+{
+    glPushMatrix();
+        glColor3f(bola.r, bola.g, bola.b);
+        glTranslatef(bola.transX, 0.5, bola.transZ);
+        glScalef(DIAMETRO_BOLA, DIAMETRO_BOLA, DIAMETRO_BOLA);
+        glRotatef(ROTACAO_BOLA, bola.rotX, bola.rotY, bola.rotZ);
+        glutWireSphere(0.5f, 10, 10);
+    glPopMatrix();
 }
 
 void plot(GLfloat x, GLfloat y, Point center) {
@@ -494,18 +501,20 @@ void desenha_campo(GLfloat V[][3])
     glPopMatrix();
 }
 
-void desenha_arquibancadas(int numero_de_bancos, GLfloat V[]) 
+void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo) 
 {
     int i;
-    GLfloat incremento_y = 0, incremento_z = DISTANCIA_ARQUIBANCADA_NEG;
+    GLfloat incremento_y = 0;
+    GLfloat incremento_z = negativo ? DISTANCIA_ARQUIBANCADA_NEG : DISTANCIA_ARQUIBANCADA_POS;
     glColor3fv(dimGray);
+    
     for (i = 0; i < numero_de_bancos; i++) {
         glPushMatrix();
         glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
         glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
         glutSolidCube(1);
         glPopMatrix();
-        incremento_z -= 0.5;
+        incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
         incremento_y += ALTURA_ARQUIBANCADA;
     }
     glPopMatrix();
@@ -520,28 +529,10 @@ void desenha_entornos_do_campo(GLfloat V[][3])
         glScalef(32, 0.4, 12);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
-
     // desenhar refletores
     
-    // desenhar arquibancadas
-    desenha_arquibancadas(20, V[4]);
-    // glPushMatrix();
-    //     glColor3fv(dimGray);
-    //     glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
-    //     glTranslatef(0, V[4][1], V[4][2] + DISTANCIA_ARQUIBANCADA_NEG);
-    //     glutSolidCube(1);
-    // glPopMatrix();
-}
-
-void desenha_bola()
-{
-    glPushMatrix();
-        glColor3f(bola.r, bola.g, bola.b);
-        glTranslatef(bola.transX, 0.5, bola.transZ);
-        glScalef(DIAMETRO_BOLA, DIAMETRO_BOLA, DIAMETRO_BOLA);
-        glRotatef(ROTACAO_BOLA, bola.rotX, bola.rotY, bola.rotZ);
-        glutWireSphere(0.5f, 10, 10);
-    glPopMatrix();
+    desenha_arquibancadas(20, V[4], true);
+    desenha_arquibancadas(20, V[0], false);
 }
 
 void display()
