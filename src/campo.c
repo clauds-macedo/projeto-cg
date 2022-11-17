@@ -487,7 +487,7 @@ void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
     print_vertex(V1);
     glBegin(GL_QUAD_STRIP);
         glVertex3f(V0[0]+somaX, V0[1], V0[2]-0.15);
-        glVertex3f(V0[0]+somaX, V0[1]+2, V0[2]-0.15); //v4
+        glVertex3f(V0[0]+somaX, V0[1]+2, V0[2]-0.15);
         glVertex3f(V1[0]+somaX, V1[1], V1[2]+0.15);
         glVertex3f(V1[0]+somaX, V1[1]+2, V1[2]+0.15);
     glEnd();
@@ -509,9 +509,7 @@ void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
 void placas(GLfloat V0[], GLfloat V1[], GLfloat V4[], GLfloat V5[])
 {
     glColor3f(1.0f, 0.0f, 0.0f);
-    printf("V4 e V5: \n");
     placaZ(V4, V5, -0.15f);
-    printf("\nV0 e V1: \n");
     placaZ(V0, V1, 0.15);
     placaX(V4, V0, -0.05);
     placaX(V5, V1, 0.05);
@@ -568,7 +566,7 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 // por baixo e ao redor do campo
     glPushMatrix();
         glColor3f(0.000f, 0.392f, 0.000f);
-        glScalef(34, 0.4, 15);
+        glScalef(38, 0.4, 20);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
     
