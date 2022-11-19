@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include "stb_image.h"
 
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.2f
@@ -60,6 +61,9 @@ typedef struct Point {
 	GLfloat y;
 	GLfloat z;
 } Point;
+
+
+int width, height, numColCh;
 
 void print_vertex(GLfloat vertex[]) {
     printf("Point: (%f, %f, %f)\n", vertex[0], vertex[1], vertex[2]);
@@ -724,6 +728,5 @@ int main(int argc, char **argv)
     init();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
-
     return 0;
 }
