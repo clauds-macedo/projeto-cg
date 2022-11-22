@@ -712,6 +712,28 @@ void reshape(GLsizei w, GLsizei h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+void init_lights()
+{
+    // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
+    GLfloat light0_position[] = {1500, 50000, 0, 1}; 
+    GLfloat light0_ambient[] = {1,1,1,1};
+    GLfloat light0_diffuse[] = {1, 1, 1, 1};
+    
+    glShadeModel(GL_SMOOTH);
+    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+    
+    glEnable(GL_COLOR_MATERIAL);
+
+    // glMaterialfv(GL_FRONT, GL_DIFFUSE);
+    
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_DEPTH_TEST);
+
+}
+
 
 int main(int argc, char **argv)
 {
@@ -726,6 +748,7 @@ int main(int argc, char **argv)
     glutReshapeFunc(reshape);
     glutSpecialFunc(specialKeys);
     init();
+    init_lights();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
     return 0;
