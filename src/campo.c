@@ -574,16 +574,15 @@ void Cube (
 void desenha_campo(GLfloat V[][3]) 
 {
     glPushMatrix();
-    	load_texture("grass.jpg", 0);
     	glEnable(GL_TEXTURE_2D);
         // glRotatef(T, 0, 1, 0);
         glColor3f(0.133f, 0.545f, 0.133f);
         glScalef(30, 0.5, 10);
+        load_texture("grass.jpg", 0);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
-        apply_texture(0);
-        fieldLines(V[0], V[1], V[5], V[4]);
-        placas(V[0], V[1], V[4], V[5]);
         glDisable(GL_TEXTURE_2D);
+		fieldLines(V[0], V[1], V[5], V[4]);
+        placas(V[0], V[1], V[4], V[5]);
     glPopMatrix();
 }
 
