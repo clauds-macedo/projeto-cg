@@ -94,7 +94,7 @@ void load_texture(const char *path, int index)
 
         stbi_image_free(data);
 	} else {
-		printf("Existe essa textura não me ajuda ai marcelo na moral");
+		printf("Existe essa textura nï¿½o me ajuda ai marcelo na moral");
 	}
 }
 
@@ -525,8 +525,6 @@ void Square(GLfloat A[], GLfloat B[], GLfloat C[], GLfloat D[])
 
 void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
 {
-    print_vertex(V0);
-    print_vertex(V1);
     glBegin(GL_QUAD_STRIP);
         glVertex3f(V0[0]+somaX, V0[1], V0[2]-0.15);
         glVertex3f(V0[0]+somaX, V0[1]+2, V0[2]-0.15);
@@ -538,8 +536,6 @@ void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
 
 void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
 {
-    print_vertex(V0);
-    print_vertex(V1);
     glBegin(GL_QUAD_STRIP);
         glVertex3f(V0[0]-0.05, V0[1], V0[2]+somaZ);
         glVertex3f(V0[0]-0.05, V0[1]+2, V0[2]+somaZ); //v4
@@ -618,6 +614,8 @@ void desenha_entornos_do_campo(GLfloat V[][3])
     desenha_arquibancadas(20, V[4], true);
     desenha_arquibancadas(20, V[0], false);
 }
+
+
 
 void display()
 { 
@@ -756,21 +754,34 @@ void reshape(GLsizei w, GLsizei h)
 void init_lights()
 {
     // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
-    GLfloat light0_position[] = {1500, 50000, 0, 1}; 
-    GLfloat light0_ambient[] = {1,1,1,1};
+    GLfloat light0_position[] = {0, 50000, 0, 1}; 
+    GLfloat light0_ambient[] = {0.001,0.001,0.001,1};
     GLfloat light0_diffuse[] = {1, 1, 1, 1};
-    
+
+    GLfloat light1_ambient[] = {1, 1, 1, 1};
+    GLfloat light1_diffuse[] = {1, 1, 1, 1};
+    GLfloat light1_position[] = {0, 10, -14, 1};
+    GLfloat light1_spot_direction[] = {20, 0, 0, 1};
+
     glShadeModel(GL_SMOOTH);
     glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
     
-    glEnable(GL_COLOR_MATERIAL);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 85.0f);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1_spot_direction);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
+
+
 
     // glMaterialfv(GL_FRONT, GL_DIFFUSE);
     
+    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+    // glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
 }
