@@ -11,13 +11,15 @@
 
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.2f
+
 #define CX_INICIAL 0.0f
-#define CY_INICIAL 15.0f
-#define CZ_INICIAL 25.0f
+#define CY_INICIAL 40.0f
+#define CZ_INICIAL 30.0f
 #define Z_MAX_CAMPO 5.5f
 #define Z_MIN_CAMPO -5.5f
-#define CYLINDER_RADIUS 1
-#define CYLINDER_HEIGHT 1
+
+#define CYLINDER_RADIUS 0.1
+#define CYLINDER_HEIGHT 15
 #define CYLINDER_SECTORS 21
 
 #define LARGURA_ARQUIBANCADA 30
@@ -29,6 +31,8 @@
 GLfloat dimGray[] = {0.412f, 0.412f, 0.412f};
 
 GLfloat ROTACAO_BOLA = 0.0f;
+
+GLfloat ang = 0.0f;
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
 GLfloat atX = 0, atY = 0, atZ = 0;
@@ -236,52 +240,6 @@ void checkGoal(GLfloat goalPos) {
     sprintf(str, "%d X %d", goalEsq, goalDir);
     
     RenderString(0.0f, 12.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
-}
-
-void SolidCylinder(float radius, float height, int sectors) {
-	int i;
-	float theta = 2.0f * M_PI / sectors;
-	float top = height / 2.0f;
-	float bottom = -top;
-	
-	glBegin(GL_TRIANGLES);
-	
-	for(i = 0;i < sectors;i++) {
-		float c0 = cos(i * theta);
-		float s0 = sin(i * theta);
-		float c1 = cos((i + 1) * theta);
-		float s1 = sin((i + 1) * theta);
-		
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(0.0f,        top,    0.0f);
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(radius * c0, top,    radius * s0);
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(radius * c1, top,    radius * s1);
-	
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(0.0f,        bottom, 0.0f);
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(radius * c1, bottom, radius * s1);
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(radius * c0, bottom, radius * s0);
-	
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, bottom, radius * s0);
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, top,    radius * s1);
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, top,    radius * s0);
-		
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, top,    radius * s1);
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, bottom, radius * s0);
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, bottom, radius * s1);
-	}
-
-	glEnd();
 }
 
 void traves(GLfloat V0[], GLfloat V1[])
@@ -553,6 +511,33 @@ void placas(GLfloat V0[], GLfloat V1[], GLfloat V4[], GLfloat V5[])
     placaX(V5, V1, 0.05);
 }
 
+void refletor(GLfloat x, GLfloat y, GLfloat mult, GLenum light)
+{
+    // 38, 0.4, 20
+    glPushMatrix();
+        glColor3fv(dimGray);
+        glTranslatef(x, y, -(CYLINDER_HEIGHT));
+        glutSolidCylinder(CYLINDER_RADIUS, CYLINDER_HEIGHT, 30, 30);
+        // glPushMatrix();
+        // glTranslatef(x-0.001, y, -CYLINDER_HEIGHT);
+        
+        // glutSolidCube(1.0f);
+    glPopMatrix();
+
+    glPushMatrix();
+        // glRotatef(ang*mult, 0, 0, 1);
+        // glRotatef(ang*mult, 0, 1, 0);
+        // glScalef(1, 2, 3);
+        glTranslatef(x-(mult * 0.45), y, -CYLINDER_HEIGHT);
+        glRotatef(120*mult, 0, 1, 0);
+        glutSolidCone(1.0f, 2.0f, 30, 30);
+    glPopMatrix();
+    
+    glPushMatrix();
+        glTranslatef(x-(mult * 0.45), y, -CYLINDER_HEIGHT);
+        glutSolidSphere(0.8, 30, 30);
+    glPopMatrix();
+}
 
 void Cube (
     GLfloat V0[], GLfloat V1[], GLfloat V2[], GLfloat V3[], 
@@ -579,6 +564,7 @@ void desenha_campo(GLfloat V[][3])
         glDisable(GL_TEXTURE_2D);
 		fieldLines(V[0], V[1], V[5], V[4]);
         placas(V[0], V[1], V[4], V[5]);
+
     glPopMatrix();
 }
 
@@ -607,18 +593,18 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 // por baixo e ao redor do campo
     glPushMatrix();
         glColor3f(0.000f, 0.392f, 0.000f);
-        glScalef(38, 0.4, 20);
+        glScalef(60, 0.4, 30);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
+    
     
     desenha_arquibancadas(20, V[4], true);
     desenha_arquibancadas(20, V[0], false);
 }
 
-
-
 void display()
 { 
+    // printf("Ang: %f\n", ang);
     GLfloat V[8][3] = {
         {-0.5f, 0.5f, 0.5f},
         { 0.5f, 0.5f, 0.5f},
@@ -647,8 +633,11 @@ void display()
     glRotatef(90, 1, 0, 0);
     Bresenham3DCircle(point(0,0,0), 1.5);
     // DrawCircle(0, 0, 1.5, 18);
-    
 
+    refletor(23.0f, 6.0f, 1, GL_LIGHT1);
+    refletor(-23.0f, 6.0f, -1, GL_LIGHT2);
+    refletor(23.0f, -6.0f, 1, GL_LIGHT3);
+    refletor(-23.0f, -6.0f, -1, GL_LIGHT4);
     glutSwapBuffers();
 }
 
@@ -723,6 +712,8 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
+        case 'n': ang += 0.1; break;
+        case 'm': ang -= 0.1; break;
         default: break;
     }
     
@@ -746,7 +737,11 @@ void reshape(GLsizei w, GLsizei h)
 
 	// Set the correct perspective.
 	gluPerspective(45,ratio,1,1000);
+    
+    // GLfloat light0_position[] = {0, 50000, 0, 1}; 
+    // glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
+    
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -755,7 +750,7 @@ void init_lights()
 {
     // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
     GLfloat light0_position[] = {0, 50000, 0, 1}; 
-    GLfloat light0_ambient[] = {0.001,0.001,0.001,1};
+    GLfloat light0_ambient[] = {1,1,1,1};
     GLfloat light0_diffuse[] = {1, 1, 1, 1};
 
     GLfloat light1_ambient[] = {1, 1, 1, 1};
@@ -768,8 +763,12 @@ void init_lights()
     glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
     
+    // esquema de spotlight a ser repetido pelo menos quatro vezes
+    // durante o dia, apenas a luz ambiente e forte
+    // sera que da pra meter o refletor?
     glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
-    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 85.0f);
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 50.0f);
+
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1_spot_direction);
     glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
@@ -780,8 +779,8 @@ void init_lights()
     
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
-    // glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT0);
+    // glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
 }
