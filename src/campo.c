@@ -22,7 +22,7 @@
 #define X_MAX_CAMPO 15.5f
 
 #define CYLINDER_RADIUS 0.1
-#define CYLINDER_HEIGHT 15
+#define CYLINDER_HEIGHT 10
 #define CYLINDER_SECTORS 21
 
 #define LARGURA_ARQUIBANCADA 30
@@ -35,7 +35,9 @@ GLfloat dimGray[] = {0.412f, 0.412f, 0.412f};
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
-GLfloat ang = 0.0f;
+GLfloat ang = 0.000000f;
+GLfloat horario = 8.0f;
+
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
 GLfloat atX = 0, atY = 0, atZ = 0;
@@ -547,33 +549,17 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
         glutSolidSphere(0.8, 30, 30);
     glPopMatrix();
 
-    GLfloat light1_ambient[] = {1, 1, 1, 1};
+    GLfloat light1_ambient[] = {ang, ang, ang, 1};
     GLfloat light1_diffuse[] = {1, 1, 1, 1};
-    GLfloat light_specular[] = {1, 1, 1, 1};
+    GLfloat light_specular[] = {0, 0, 0, 1};
 
-    GLfloat light1_position[] = {pos.x+1, pos.y+1, pos.z+1, 1};
-    // GLfloat light1_position[] = {1, 1, 1, 1};
-    // GLfloat light1_spot_direction[] = {0, 0, 0};
+    GLfloat light1_position[] = {pos.x, pos.y, pos.z, 1};
     GLfloat light1_spot_direction[] = {direction[0], direction[1], direction[2]};
 
-    // glPushMatrix();
-    
-    // glLightfv(light, GL_POSITION, light1_position);
-    // glLightfv(light, GL_AMBIENT, light1_ambient);
-    // glLightfv(light, GL_DIFFUSE, light1_diffuse);
-    // glLightfv(light, GL_SPECULAR, light_specular);
-
-    // glLightfv(light, GL_SPOT_DIRECTION, direction);
-    // glLightf(light, GL_SPOT_CUTOFF, ang);
-
-    // glEnable(light);
-    // glPopMatrix();
-
-    // glPushMatrix();
-    // glColor3f(1,1,1);
-    //     glTranslatef(direction[0], direction[1], 0.29);
-    //     glutSolidCube(2.0f);
-    // glPopMatrix();
+    glLightfv(light, GL_POSITION, light1_position);
+    glLightfv(light, GL_AMBIENT, light1_ambient);
+    glLightfv(light, GL_DIFFUSE, light1_diffuse);
+    glLightfv(light, GL_SPECULAR, light_specular);
 }
 
 void Cube (
@@ -593,7 +579,6 @@ void desenha_campo(GLfloat V[][3])
 {
     glPushMatrix();
     	glEnable(GL_TEXTURE_2D);
-        // glRotatef(T, 0, 1, 0);
         glColor3f(0.133f, 0.545f, 0.133f);
         glScalef(30, 0.5, 10);
         load_texture("grass.jpg", 0);
@@ -614,9 +599,9 @@ void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo)
     
     for (i = 0; i < numero_de_bancos; i++) {
         glPushMatrix();
-        glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
-        glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
-        glutSolidCube(1);
+            glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
+            glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
+            glutSolidCube(1);
         glPopMatrix();
         incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
         incremento_y += ALTURA_ARQUIBANCADA;
@@ -633,14 +618,13 @@ void desenha_entornos_do_campo(GLfloat V[][3])
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
     
-    
     desenha_arquibancadas(20, V[4], true);
     desenha_arquibancadas(20, V[0], false);
 }
 
 void display()
 { 
-    printf("Ang: %f\n", ang);
+    // printf("Ang: %f\n", ang);
     GLfloat V[8][3] = {
         {-0.5f, 0.5f, 0.5f},
         { 0.5f, 0.5f, 0.5f},
@@ -671,18 +655,16 @@ void display()
     glPopMatrix();
 
     // DrawCircle(0, 0, 1.5, 18);
-    GLfloat dir_light1[] = {X_MAX_CAMPO, 0.29, Z_MAX_CAMPO};
-    GLfloat dir_light2[] = {};
-    GLfloat dir_light3[] = {};
-    GLfloat dir_light4[] = {};
+    GLfloat dir_light1[] = {X_MAX_CAMPO-3, 0.29, Z_MAX_CAMPO-2};
+    GLfloat dir_light2[] = {-X_MAX_CAMPO+3, 0.29, Z_MAX_CAMPO-2};
+    GLfloat dir_light3[] = {X_MAX_CAMPO-3, 0.29, -Z_MAX_CAMPO+2};
+    GLfloat dir_light4[] = {-X_MAX_CAMPO+3, 0.29, -Z_MAX_CAMPO+2};
     
     
-    // refletor(23.0f, 6.0f, 1, dir_light1, GL_LIGHT1);
-    // glPushMatrix();
-    refletor(23.0f, 6, 1, dir_light1, GL_LIGHT1);
-    refletor(-23.0f, 6.0f, -1, V[1], GL_LIGHT2);
-    refletor(23.0f, -6.0f, 1, V[4], GL_LIGHT3);
-    refletor(-23.0f, -6.0f, -1, V[5], GL_LIGHT4);
+    refletor(23.0f, 6.0f, 1, dir_light1, GL_LIGHT1);
+    refletor(-23.0f, 6.0f, -1, dir_light2, GL_LIGHT2);
+    refletor(23.0f, -6.0f, 1, dir_light3, GL_LIGHT3);
+    refletor(-23.0f, -6.0f, -1, dir_light4, GL_LIGHT4);
     
     // glPopMatrix();
     
@@ -691,7 +673,7 @@ void display()
 
 void init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(ang, 0.808f, 0.922f, 1);
     glEnable(GL_DEPTH_TEST);
 
     // ativar projeção em perspectiva
@@ -760,8 +742,8 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
-        case 'n': ang += 1.0f; break;
-        case 'm': ang -= 1.0f; break;
+        case 'n': ang += 0.1f; break;
+        case 'm': ang -= 0.1f; break;
         default: break;
     }
     
@@ -793,7 +775,7 @@ void reshape(GLsizei w, GLsizei h)
 void init_lights()
 {
     // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
-    GLfloat light0_position[] = {0, 50000, 0, 1}; 
+    GLfloat light0_position[] = {0, 5000, 0, 1}; 
     GLfloat light0_ambient[] = {1,1,1,1};
     GLfloat light0_diffuse[] = {1, 1, 1, 1};
 
@@ -801,27 +783,11 @@ void init_lights()
     glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-    
-    // glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
-    // glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 50.0f);
 
-    // glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1_spot_direction);
-    // glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
-    // glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
-
-
-
-    // glMaterialfv(GL_FRONT, GL_DIFFUSE);
     
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHT2);
-    glEnable(GL_LIGHT3);
-    glEnable(GL_LIGHT4);
-
-    // glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
 }
