@@ -12,9 +12,9 @@
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.2f
 
-#define CX_INICIAL 0.0f
-#define CY_INICIAL 40.0f
-#define CZ_INICIAL 30.0f
+#define CX_INICIAL -34.0f
+#define CY_INICIAL 19.5f
+#define CZ_INICIAL 0.5f
 
 #define Z_MAX_CAMPO 5.5f
 #define Z_MIN_CAMPO -5.5f
@@ -534,6 +534,9 @@ void timer(int value)
         glClearColor(0.529f, 0.808f, 0.922f, 1);
         noite = false;
     }
+    else if ((horario > 15 && horario <= 18) || (horario >= 4.5 && horario < 6)) {
+        glClearColor(0.957f, 0.643f, 0.376f, 1);
+    }
     else {
         glClearColor(0, 0, 0, 1);
         noite = true;
@@ -697,6 +700,7 @@ void display()
         0, 1, 0
     );
 
+
     desenha_entornos_do_campo(V);
     desenha_campo(V);
     desenha_bola();
@@ -762,7 +766,7 @@ void keyboard(unsigned char key, int x, int y)
 
         case 'z': camera.Cz -= 0.5;    break;
         case 'Z': camera.Cz += 0.5;    break;
-
+        
         case 'w': 
         case 'W':
             bola.transZ -= TRANSLACAO_BOLA;
