@@ -37,6 +37,7 @@ GLfloat ROTACAO_BOLA = 0.0f;
 
 GLfloat ang = 0.000000f;
 GLfloat horario = 8.0f;
+bool noite = false;
 
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
@@ -496,7 +497,6 @@ void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
     glEnd();
 }
 
-
 void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
 {
     glBegin(GL_QUAD_STRIP);
@@ -522,6 +522,26 @@ void print_arr(GLfloat arr[], int size) {
         printf("%f ", arr[i]);
     }
     printf("\n");
+}
+
+void timer(int value)
+{
+    horario += 0.1;
+    if (horario > 23.99)
+        horario = 0; 
+    
+    if (horario >= 6 && horario <= 15) {
+        glClearColor(0.529f, 0.808f, 0.922f, 1);
+        noite = false;
+    }
+    else {
+        glClearColor(0, 0, 0, 1);
+        noite = true;
+    }
+
+    // printf("horario: %f\n", horario);
+    glutPostRedisplay();
+    glutTimerFunc(33, timer, 1);
 }
 
 void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum light)
@@ -560,6 +580,12 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
     glLightfv(light, GL_AMBIENT, light1_ambient);
     glLightfv(light, GL_DIFFUSE, light1_diffuse);
     glLightfv(light, GL_SPECULAR, light_specular);
+
+    if (noite) {
+        glEnable(light);
+    } else {
+        glDisable(light);
+    }
 }
 
 void Cube (
@@ -622,6 +648,32 @@ void desenha_entornos_do_campo(GLfloat V[][3])
     desenha_arquibancadas(20, V[0], false);
 }
 
+void init_lights()
+{
+    GLfloat light0_position[] = {0, 5000, 0, 1}; 
+    GLfloat light0_ambient_day[] = {1, 1, 1, 1};
+    GLfloat light0_ambient_night[] = {0, 0, 0, 1};
+    if (noite)
+        glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_night);
+    else
+        glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_day);
+        
+    GLfloat light0_diffuse[] = {1, 1, 1, 1};
+
+    glShadeModel(GL_SMOOTH);
+    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+    
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+
+    
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_DEPTH_TEST);
+
+}
+
+
 void display()
 { 
     // printf("Ang: %f\n", ang);
@@ -635,7 +687,7 @@ void display()
         { 0.5f, -0.5f, -0.5f},
         {-0.5f, -0.5f, -0.5f},        
     };
-
+    init_lights();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // printf("GOAL POS: %f\n", -(V[1][1]+15));
     glLoadIdentity();
@@ -673,7 +725,7 @@ void display()
 
 void init()
 {
-    glClearColor(ang, 0.808f, 0.922f, 1);
+    glClearColor(0, 0, 0, 1);
     glEnable(GL_DEPTH_TEST);
 
     // ativar projeção em perspectiva
@@ -742,8 +794,8 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
-        case 'n': ang += 0.1f; break;
-        case 'm': ang -= 0.1f; break;
+        case 'n': ang += 0.1f;      break;
+        case 'm': ang -= 0.1f;      break;
         default: break;
     }
     
@@ -772,25 +824,6 @@ void reshape(GLsizei w, GLsizei h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void init_lights()
-{
-    // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
-    GLfloat light0_position[] = {0, 5000, 0, 1}; 
-    GLfloat light0_ambient[] = {1,1,1,1};
-    GLfloat light0_diffuse[] = {1, 1, 1, 1};
-
-    glShadeModel(GL_SMOOTH);
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-
-    
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_DEPTH_TEST);
-
-}
 
 int main(int argc, char **argv)
 {
@@ -804,9 +837,11 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutSpecialFunc(specialKeys);
+    glutTimerFunc(33, timer, 1);
     init();
     init_lights();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
+    
     return 0;
 }
