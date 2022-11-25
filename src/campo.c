@@ -15,8 +15,11 @@
 #define CX_INICIAL 0.0f
 #define CY_INICIAL 40.0f
 #define CZ_INICIAL 30.0f
+
 #define Z_MAX_CAMPO 5.5f
 #define Z_MIN_CAMPO -5.5f
+
+#define X_MAX_CAMPO 15.5f
 
 #define CYLINDER_RADIUS 0.1
 #define CYLINDER_HEIGHT 15
@@ -511,44 +514,66 @@ void placas(GLfloat V0[], GLfloat V1[], GLfloat V4[], GLfloat V5[])
     placaX(V5, V1, 0.05);
 }
 
-void refletor(GLfloat x, GLfloat y, GLfloat mult, GLfloat direction[], GLenum light)
+void print_arr(GLfloat arr[], int size) {
+    int i = 0;
+    for (i = 0; i < size; i++) {
+        printf("%f ", arr[i]);
+    }
+    printf("\n");
+}
+
+void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum light)
 {
-    // printf("My light: %d\n", light);
-    Point pos = {x-(mult * 0.45), y, -CYLINDER_HEIGHT};
-    // 38, 0.4, 20
+    // printf("Direction in refletor: ");
+    // print_arr(direction, 3);
+    Point pos = {x-(mult * 0.45), 0.29, z};
+    // // 38, 0.4, 20
     glPushMatrix();
         glColor3fv(dimGray);
-        glTranslatef(x, y, -(CYLINDER_HEIGHT));
+        glTranslatef(x, 0.29, z);
+        glRotatef(-90, 1, 0, 0); //mantem erecto
         glutSolidCylinder(CYLINDER_RADIUS, CYLINDER_HEIGHT, 30, 30);
     glPopMatrix();
 
     glPushMatrix();
-        glTranslatef(pos.x, pos.y, pos.z);
-        glRotatef(120*mult, 0, 1, 0);
+        glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
+        glRotatef(30*mult, 0, 0, 1);
+        glRotatef(90*mult, 0, 1, 0);
         glutSolidCone(1.0f, 2.0f, 30, 30);
     glPopMatrix();
     
     glPushMatrix();
-        glTranslatef(pos.x, pos.y, pos.z);
+        glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
         glutSolidSphere(0.8, 30, 30);
     glPopMatrix();
 
     GLfloat light1_ambient[] = {1, 1, 1, 1};
-    GLfloat light1_diffuse[] = {1, 1, 0, 1};
+    GLfloat light1_diffuse[] = {1, 1, 1, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
 
-    GLfloat light1_position[] = {pos.x, pos.y, pos.z, 1};
-    GLfloat light1_spot_direction[] = {0, 0, 0};
+    GLfloat light1_position[] = {pos.x+1, pos.y+1, pos.z+1, 1};
+    // GLfloat light1_position[] = {1, 1, 1, 1};
+    // GLfloat light1_spot_direction[] = {0, 0, 0};
+    GLfloat light1_spot_direction[] = {direction[0], direction[1], direction[2]};
 
-    glLightfv(light, GL_POSITION, light1_position);
-    glLightf(light, GL_SPOT_CUTOFF, 45.0f);
+    // glPushMatrix();
+    
+    // glLightfv(light, GL_POSITION, light1_position);
+    // glLightfv(light, GL_AMBIENT, light1_ambient);
+    // glLightfv(light, GL_DIFFUSE, light1_diffuse);
+    // glLightfv(light, GL_SPECULAR, light_specular);
 
-    glLightfv(light, GL_SPOT_DIRECTION, light1_spot_direction);
-    glLightfv(light, GL_AMBIENT, light1_ambient);
-    glLightfv(light, GL_DIFFUSE, light1_diffuse);
-    glLightfv(light, GL_SPECULAR, light_specular);
+    // glLightfv(light, GL_SPOT_DIRECTION, direction);
+    // glLightf(light, GL_SPOT_CUTOFF, ang);
 
-    glEnable(light);
+    // glEnable(light);
+    // glPopMatrix();
+
+    // glPushMatrix();
+    // glColor3f(1,1,1);
+    //     glTranslatef(direction[0], direction[1], 0.29);
+    //     glutSolidCube(2.0f);
+    // glPopMatrix();
 }
 
 void Cube (
@@ -597,7 +622,6 @@ void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo)
         incremento_y += ALTURA_ARQUIBANCADA;
     }
     glPopMatrix();
-    
 }
 
 void desenha_entornos_do_campo(GLfloat V[][3])
@@ -616,7 +640,7 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 
 void display()
 { 
-    // printf("Ang: %f\n", ang);
+    printf("Ang: %f\n", ang);
     GLfloat V[8][3] = {
         {-0.5f, 0.5f, 0.5f},
         { 0.5f, 0.5f, 0.5f},
@@ -629,7 +653,7 @@ void display()
     };
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+    // printf("GOAL POS: %f\n", -(V[1][1]+15));
     glLoadIdentity();
     gluLookAt(
         camera.Cx, camera.Cy, camera.Cz, 
@@ -640,20 +664,27 @@ void display()
     desenha_entornos_do_campo(V);
     desenha_campo(V);
     desenha_bola();
+    glPushMatrix();
+        glTranslatef(0, 0.29, 0);
+        glRotatef(90, 1, 0, 0);
+        Bresenham3DCircle(point(0,0,0), 1.5);
+    glPopMatrix();
 
-    glTranslatef(0, 0.29, 0);
-    glRotatef(90, 1, 0, 0);
-    Bresenham3DCircle(point(0,0,0), 1.5);
     // DrawCircle(0, 0, 1.5, 18);
-    GLfloat dir_light1[] = {};
+    GLfloat dir_light1[] = {X_MAX_CAMPO, 0.29, Z_MAX_CAMPO};
     GLfloat dir_light2[] = {};
     GLfloat dir_light3[] = {};
     GLfloat dir_light4[] = {};
     
-    refletor(23.0f, 6.0f, 1, V[1], GL_LIGHT1);
-    // refletor(-23.0f, 6.0f, -1, V[1], GL_LIGHT2);
-    // refletor(23.0f, -6.0f, 1, V[4], GL_LIGHT3);
-    // refletor(-23.0f, -6.0f, -1, V[5], GL_LIGHT4);
+    
+    // refletor(23.0f, 6.0f, 1, dir_light1, GL_LIGHT1);
+    // glPushMatrix();
+    refletor(23.0f, 6, 1, dir_light1, GL_LIGHT1);
+    refletor(-23.0f, 6.0f, -1, V[1], GL_LIGHT2);
+    refletor(23.0f, -6.0f, 1, V[4], GL_LIGHT3);
+    refletor(-23.0f, -6.0f, -1, V[5], GL_LIGHT4);
+    
+    // glPopMatrix();
     
     glutSwapBuffers();
 }
@@ -729,8 +760,8 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
-        case 'n': ang += 0.1; break;
-        case 'm': ang -= 0.1; break;
+        case 'n': ang += 1.0f; break;
+        case 'm': ang -= 1.0f; break;
         default: break;
     }
     
@@ -763,26 +794,14 @@ void init_lights()
 {
     // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
     GLfloat light0_position[] = {0, 50000, 0, 1}; 
-    GLfloat light0_ambient[] = {0.1,0.1,0.1,1};
+    GLfloat light0_ambient[] = {1,1,1,1};
     GLfloat light0_diffuse[] = {1, 1, 1, 1};
-
-    // GLfloat light1_ambient[] = {1, 1, 1, 1};
-    // GLfloat light1_diffuse[] = {1, 1, 1, 1};
-    // GLfloat light1_position[] = {0, 10, -14, 1};
-    // GLfloat light1_spot_direction[] = {20, 0, 0, 1};
 
     glShadeModel(GL_SMOOTH);
     glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
     
-    glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHT2);
-    glEnable(GL_LIGHT3);
-    glEnable(GL_LIGHT4);
-    // esquema de spotlight a ser repetido pelo menos quatro vezes
-    // durante o dia, apenas a luz ambiente e forte
-    // sera que da pra meter o refletor?
     // glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
     // glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 50.0f);
 
@@ -797,11 +816,15 @@ void init_lights()
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT2);
+    glEnable(GL_LIGHT3);
+    glEnable(GL_LIGHT4);
+
     // glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
 }
-
 
 int main(int argc, char **argv)
 {
