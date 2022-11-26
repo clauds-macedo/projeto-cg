@@ -276,12 +276,19 @@ void traves(GLfloat V0[], GLfloat V1[])
 
 void desenha_bola()
 {
+    GLfloat mat_ambient[] = {0.05f,0.05f,0.05f,1.0f };
+    GLfloat mat_diffuse[] = {0.5f,0.5f,0.5f,1.0f};
+    GLfloat mat_specular[] = { 0.7f,0.7f,0.7f,1.0f};
+    GLfloat shininess = 100.0f;
     glPushMatrix();
         glColor3f(bola.r, bola.g, bola.b);
+        glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
         glTranslatef(bola.transX, 0.5, bola.transZ);
         glScalef(DIAMETRO_BOLA, DIAMETRO_BOLA, DIAMETRO_BOLA);
         glRotatef(ROTACAO_BOLA, bola.rotX, bola.rotY, bola.rotZ);
-        glutWireSphere(0.5f, 10, 10);
+        glutSolidSphere(0.5f, 30, 30);
     glPopMatrix();
 }
 
@@ -525,23 +532,21 @@ void print_arr(GLfloat arr[], int size) {
 }
 
 void timer(int value)
-{
+{   
+    noite = (horario >= 6 && horario <= 15) ? false : true;
+    
+    if ((horario > 15 && horario <= 18) || (horario >= 4.5 && horario < 6)) 
+        glClearColor(0.957f, 0.643f, 0.376f, 1); 
+    else if (noite) 
+        glClearColor(0,0,0,1);
+    else if (!noite) 
+        glClearColor(0.529f, 0.808f, 0.922f, 1); 
+    
     horario += 0.1;
+    
     if (horario > 23.99)
         horario = 0; 
     
-    if (horario >= 6 && horario <= 15) {
-        glClearColor(0.529f, 0.808f, 0.922f, 1);
-        noite = false;
-    }
-    else if ((horario > 15 && horario <= 18) || (horario >= 4.5 && horario < 6)) {
-        glClearColor(0.957f, 0.643f, 0.376f, 1);
-    }
-    else {
-        glClearColor(0, 0, 0, 1);
-        noite = true;
-    }
-
     // printf("horario: %f\n", horario);
     glutPostRedisplay();
     glutTimerFunc(33, timer, 1);
@@ -549,10 +554,14 @@ void timer(int value)
 
 void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum light)
 {
-    // printf("Direction in refletor: ");
-    // print_arr(direction, 3);
     Point pos = {x-(mult * 0.45), 0.29, z};
-    // // 38, 0.4, 20
+
+    GLfloat ambient[] = {0.105882f, 0.058824f, 0.113725f, 1.0f};
+    GLfloat diffuse[] = {0.427451f, 0.470588f, 0.541176f, 1.0f };
+    GLfloat specular[] = {0.333333f, 0.333333f, 0.521569f, 1.0f };
+    GLfloat shininess = 9.84615f;
+
+
     glPushMatrix();
         glColor3fv(dimGray);
         glTranslatef(x, 0.29, z);
@@ -561,6 +570,11 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
     glPopMatrix();
 
     glPushMatrix();
+        glColor3f(0.427451f, 0.470588f, 0.541176f);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
         glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
         glRotatef(30*mult, 0, 0, 1);
         glRotatef(90*mult, 0, 1, 0);
@@ -568,11 +582,12 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
     glPopMatrix();
     
     glPushMatrix();
+        
         glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
         glutSolidSphere(0.8, 30, 30);
     glPopMatrix();
 
-    GLfloat light1_ambient[] = {ang, ang, ang, 1};
+    GLfloat light1_ambient[] = {0.16, 0.16, 0.16, 1};
     GLfloat light1_diffuse[] = {1, 1, 1, 1};
     GLfloat light_specular[] = {0, 0, 0, 1};
 
@@ -583,6 +598,11 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
     glLightfv(light, GL_AMBIENT, light1_ambient);
     glLightfv(light, GL_DIFFUSE, light1_diffuse);
     glLightfv(light, GL_SPECULAR, light_specular);
+
+    // glLightf(light, GL_CONSTANT_ATTENUATION, 2.0f);
+    // glLightf(light, GL_LINEAR_ATTENUATION, 0.1);
+    // glLightf(light, GL_QUADRATIC_ATTENUATION, 0.12);
+    
 
     if (noite) {
         glEnable(light);
@@ -624,10 +644,20 @@ void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo)
     int i;
     GLfloat incremento_y = 0;
     GLfloat incremento_z = negativo ? DISTANCIA_ARQUIBANCADA_NEG : DISTANCIA_ARQUIBANCADA_POS;
-    glColor3fv(dimGray);
+    
+    glColor3f(0.396f, 0.74151f, 0.69102f);
+
+    GLfloat mat_ambient[] = { 0.1f, 0.18725f, 0.1745f, 0.8f };
+    GLfloat mat_diffuse[] = {0.396f, 0.74151f, 0.69102f, 0.8f };
+    GLfloat mat_specular[] = {0.297254f, 0.30829f, 0.306678f, 0.8f };
+    GLfloat shine = 127.0f;
     
     for (i = 0; i < numero_de_bancos; i++) {
         glPushMatrix();
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shine);
             glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
             glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
             glutSolidCube(1);
@@ -653,25 +683,27 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 
 void init_lights()
 {
-    GLfloat light0_position[] = {0, 5000, 0, 1}; 
-    GLfloat light0_ambient_day[] = {1, 1, 1, 1};
+    GLfloat light0_position[] = {0, 3000, 0, 1}; 
+    GLfloat light0_ambient_day[] = {0.7, 0.7, 0.7, 1};
     GLfloat light0_ambient_night[] = {0, 0, 0, 1};
-    if (noite)
-        glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_night);
-    else
-        glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_day);
         
     GLfloat light0_diffuse[] = {1, 1, 1, 1};
 
     glShadeModel(GL_SMOOTH);
     glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_day);
 
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.1999f);
+    // glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, ang);
+    // glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, ang);
     
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+    
+    if (noite) glDisable(GL_LIGHT0);
+    else glEnable(GL_LIGHT0);
+    
     glEnable(GL_DEPTH_TEST);
 
 }
@@ -729,7 +761,7 @@ void display()
 
 void init()
 {
-    glClearColor(0, 0, 0, 1);
+    glClearColor(0.529f, 0.808f, 0.922f, 1); 
     glEnable(GL_DEPTH_TEST);
 
     // ativar projeção em perspectiva
@@ -798,8 +830,11 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
-        case 'n': ang += 0.1f;      break;
-        case 'm': ang -= 0.1f;      break;
+        case 'n': ang += 0.01f;      break;
+        case 'm': ang -= 0.01f;      break;
+        case ' ':
+            // timer(1);
+            break;
         default: break;
     }
     
