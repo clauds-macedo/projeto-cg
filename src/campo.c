@@ -67,7 +67,6 @@ typedef struct Point {
 void load_texture(const char *path, int index)
 {
 	unsigned int textureID;
-    glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
@@ -81,8 +80,11 @@ void load_texture(const char *path, int index)
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    	glGenTextures(1, &textureID);
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+        
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -90,7 +92,7 @@ void load_texture(const char *path, int index)
   		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   		
   		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-  		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
         stbi_image_free(data);
 	} else {
@@ -538,13 +540,11 @@ void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
 
 void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
 {
-    print_vertex(V0);
-    print_vertex(V1);
     glBegin(GL_QUAD_STRIP);
-        glVertex3f(V0[0]-0.05, V0[1], V0[2]+somaZ);
-        glVertex3f(V0[0]-0.05, V0[1]+2, V0[2]+somaZ); //v4
-        glVertex3f(V1[0]+0.05, V1[1], V1[2]+somaZ);
-        glVertex3f(V1[0]+0.05, V1[1]+2, V1[2]+somaZ);
+	    glVertex3f(V0[0]-0.05, V0[1], V0[2]+somaZ);        
+		glVertex3f(V0[0]-0.05, V0[1]+2, V0[2]+somaZ); //v4
+		glVertex3f(V1[0]+0.05, V1[1], V1[2]+somaZ);
+		glVertex3f(V1[0]+0.05, V1[1]+2, V1[2]+somaZ);
     glEnd();
 }
 
@@ -574,15 +574,10 @@ void Cube (
 void desenha_campo(GLfloat V[][3]) 
 {
     glPushMatrix();
-    	glEnable(GL_TEXTURE_2D);
-        // glRotatef(T, 0, 1, 0);
+    	// glRotatef(T, 0, 1, 0);
         glColor3f(0.133f, 0.545f, 0.133f);
         glScalef(30, 0.5, 10);
-        load_texture("grass.jpg", 0);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
-        glDisable(GL_TEXTURE_2D);
-		fieldLines(V[0], V[1], V[5], V[4]);
-        placas(V[0], V[1], V[4], V[5]);
     glPopMatrix();
 }
 
@@ -592,17 +587,22 @@ void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo)
     GLfloat incremento_y = 0;
     GLfloat incremento_z = negativo ? DISTANCIA_ARQUIBANCADA_NEG : DISTANCIA_ARQUIBANCADA_POS;
     glColor3fv(dimGray);
-    
+    load_texture("arquibancada.jpg", 2);
+    glEnable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
+    glEnable(GL_TEXTURE_GEN_T);
+    glBindTexture(GL_TEXTURE_2D, 2);
     for (i = 0; i < numero_de_bancos; i++) {
         glPushMatrix();
-        glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
-        glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
-        glutSolidCube(1);
-        glPopMatrix();
-        incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
-        incremento_y += ALTURA_ARQUIBANCADA;
+	        glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
+	        glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
+	        glutSolidCube(1);
+	        glPopMatrix();
+	        incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
+	        incremento_y += ALTURA_ARQUIBANCADA;
     }
-    glPopMatrix();
+    	glPopMatrix();
+    glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
+    glDisable(GL_TEXTURE_GEN_T);
     
 }
 
@@ -642,8 +642,29 @@ void display()
     );
 
     desenha_entornos_do_campo(V);
-    desenha_campo(V);
-    desenha_bola();
+    
+    load_texture("grass.jpg", 0);
+    glEnable(GL_TEXTURE_2D);
+  		glBegin(GL_QUADS);
+  		
+		  glTexCoord2f(0.0, 10.0); 
+		  glVertex3f(-15, 0.25, -5);
+		  glTexCoord2f(20.0, 0.0); 
+		  glVertex3f(-15, 0.25, 5);
+		  glTexCoord2f(0.0, 0.0); 
+		  glVertex3f(15, 0.25, 5);
+		  glTexCoord2f(20.0, 10.0); 
+		  glVertex3f(15, 0.25, -5);
+
+  		glEnd();
+  	glDisable(GL_TEXTURE_2D);
+  	
+  	glPushMatrix();
+		glScalef(30, 0.5, 10);
+		fieldLines(V[0], V[1], V[5], V[4]);
+		placas(V[0], V[1], V[4], V[5]);
+    glPopMatrix();
+	desenha_bola();
 
     glTranslatef(0, 0.29, 0);
     glRotatef(90, 1, 0, 0);
