@@ -11,13 +11,18 @@
 
 #define DIAMETRO_BOLA 0.5f
 #define TRANSLACAO_BOLA 0.2f
-#define CX_INICIAL 0.0f
-#define CY_INICIAL 15.0f
-#define CZ_INICIAL 25.0f
+
+#define CX_INICIAL -34.0f
+#define CY_INICIAL 19.5f
+#define CZ_INICIAL 0.5f
+
 #define Z_MAX_CAMPO 5.5f
 #define Z_MIN_CAMPO -5.5f
-#define CYLINDER_RADIUS 1
-#define CYLINDER_HEIGHT 1
+
+#define X_MAX_CAMPO 15.5f
+
+#define CYLINDER_RADIUS 0.1
+#define CYLINDER_HEIGHT 10
 #define CYLINDER_SECTORS 21
 
 #define LARGURA_ARQUIBANCADA 30
@@ -29,6 +34,11 @@
 GLfloat dimGray[] = {0.412f, 0.412f, 0.412f};
 
 GLfloat ROTACAO_BOLA = 0.0f;
+
+GLfloat ang = 0.000000f;
+GLfloat horario = 8.0f;
+bool noite = false;
+
 
 GLfloat Cx = CX_INICIAL, Cy = CY_INICIAL, Cz = CZ_INICIAL;
 GLfloat atX = 0, atY = 0, atZ = 0;
@@ -96,7 +106,7 @@ void load_texture(const char *path, int index)
 
         stbi_image_free(data);
 	} else {
-		printf("Existe essa textura n�o me ajuda ai marcelo na moral");
+		printf("Existe essa textura n�o me ajuda ai marcelo na moral");
 	}
 }
 
@@ -240,52 +250,6 @@ void checkGoal(GLfloat goalPos) {
     RenderString(0.0f, 12.0f, GLUT_BITMAP_TIMES_ROMAN_24, str);
 }
 
-void SolidCylinder(float radius, float height, int sectors) {
-	int i;
-	float theta = 2.0f * M_PI / sectors;
-	float top = height / 2.0f;
-	float bottom = -top;
-	
-	glBegin(GL_TRIANGLES);
-	
-	for(i = 0;i < sectors;i++) {
-		float c0 = cos(i * theta);
-		float s0 = sin(i * theta);
-		float c1 = cos((i + 1) * theta);
-		float s1 = sin((i + 1) * theta);
-		
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(0.0f,        top,    0.0f);
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(radius * c0, top,    radius * s0);
-		glNormal3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(radius * c1, top,    radius * s1);
-	
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(0.0f,        bottom, 0.0f);
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(radius * c1, bottom, radius * s1);
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		glVertex3f(radius * c0, bottom, radius * s0);
-	
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, bottom, radius * s0);
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, top,    radius * s1);
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, top,    radius * s0);
-		
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, top,    radius * s1);
-		glNormal3f(c0, 0.0f, s0);
-		glVertex3f(radius * c0, bottom, radius * s0);
-		glNormal3f(c1, 0.0f, s1);
-		glVertex3f(radius * c1, bottom, radius * s1);
-	}
-
-	glEnd();
-}
-
 void traves(GLfloat V0[], GLfloat V1[])
 {
     glBegin(GL_LINES);
@@ -314,12 +278,19 @@ void traves(GLfloat V0[], GLfloat V1[])
 
 void desenha_bola()
 {
+    GLfloat mat_ambient[] = {0.05f,0.05f,0.05f,1.0f };
+    GLfloat mat_diffuse[] = {0.5f,0.5f,0.5f,1.0f};
+    GLfloat mat_specular[] = { 0.7f,0.7f,0.7f,1.0f};
+    GLfloat shininess = 100.0f;
     glPushMatrix();
         glColor3f(bola.r, bola.g, bola.b);
+        glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
         glTranslatef(bola.transX, 0.5, bola.transZ);
         glScalef(DIAMETRO_BOLA, DIAMETRO_BOLA, DIAMETRO_BOLA);
         glRotatef(ROTACAO_BOLA, bola.rotX, bola.rotY, bola.rotZ);
-        glutWireSphere(0.5f, 10, 10);
+        glutSolidSphere(0.5f, 30, 30);
     glPopMatrix();
 }
 
@@ -527,8 +498,6 @@ void Square(GLfloat A[], GLfloat B[], GLfloat C[], GLfloat D[])
 
 void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
 {
-    print_vertex(V0);
-    print_vertex(V1);
     glBegin(GL_QUAD_STRIP);
         glVertex3f(V0[0]+somaX, V0[1], V0[2]-0.15);
         glVertex3f(V0[0]+somaX, V0[1]+2, V0[2]-0.15);
@@ -536,7 +505,6 @@ void placaX(GLfloat V0[], GLfloat V1[], GLfloat somaX)
         glVertex3f(V1[0]+somaX, V1[1]+2, V1[2]+0.15);
     glEnd();
 }
-
 
 void placaZ(GLfloat V0[], GLfloat V1[], GLfloat somaZ)
 {
@@ -557,6 +525,93 @@ void placas(GLfloat V0[], GLfloat V1[], GLfloat V4[], GLfloat V5[])
     placaX(V5, V1, 0.05);
 }
 
+void print_arr(GLfloat arr[], int size) {
+    int i = 0;
+    for (i = 0; i < size; i++) {
+        printf("%f ", arr[i]);
+    }
+    printf("\n");
+}
+
+void timer(int value)
+{   
+    noite = (horario >= 6 && horario <= 15) ? false : true;
+    
+    if ((horario > 15 && horario <= 18) || (horario >= 4.5 && horario < 6)) 
+        glClearColor(0.957f, 0.643f, 0.376f, 1); 
+    else if (noite) 
+        glClearColor(0,0,0,1);
+    else if (!noite) 
+        glClearColor(0.529f, 0.808f, 0.922f, 1); 
+    
+    horario += 0.1;
+    
+    if (horario > 23.99)
+        horario = 0; 
+    
+    // printf("horario: %f\n", horario);
+    glutPostRedisplay();
+    glutTimerFunc(33, timer, 1);
+}
+
+void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum light)
+{
+    Point pos = {x-(mult * 0.45), 0.29, z};
+
+    GLfloat ambient[] = {0.105882f, 0.058824f, 0.113725f, 1.0f};
+    GLfloat diffuse[] = {0.427451f, 0.470588f, 0.541176f, 1.0f };
+    GLfloat specular[] = {0.333333f, 0.333333f, 0.521569f, 1.0f };
+    GLfloat shininess = 9.84615f;
+
+
+    glPushMatrix();
+        glColor3fv(dimGray);
+        glTranslatef(x, 0.29, z);
+        glRotatef(-90, 1, 0, 0); //mantem erecto
+        glutSolidCylinder(CYLINDER_RADIUS, CYLINDER_HEIGHT, 30, 30);
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(0.427451f, 0.470588f, 0.541176f);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+        glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
+        glRotatef(30*mult, 0, 0, 1);
+        glRotatef(90*mult, 0, 1, 0);
+        glutSolidCone(1.0f, 2.0f, 30, 30);
+    glPopMatrix();
+    
+    glPushMatrix();
+        
+        glTranslatef(pos.x, CYLINDER_HEIGHT, pos.z);
+        glutSolidSphere(0.8, 30, 30);
+    glPopMatrix();
+
+    GLfloat light1_ambient[] = {0.16, 0.16, 0.16, 1};
+    GLfloat light1_diffuse[] = {1, 1, 1, 1};
+    GLfloat light_specular[] = {0, 0, 0, 1};
+
+    GLfloat light1_position[] = {pos.x, pos.y, pos.z, 1};
+    GLfloat light1_spot_direction[] = {direction[0], direction[1], direction[2]};
+
+    glLightfv(light, GL_POSITION, light1_position);
+    glLightfv(light, GL_AMBIENT, light1_ambient);
+    glLightfv(light, GL_DIFFUSE, light1_diffuse);
+    glLightfv(light, GL_SPECULAR, light_specular);
+
+    // glLightf(light, GL_CONSTANT_ATTENUATION, 2.0f);
+    // glLightf(light, GL_LINEAR_ATTENUATION, 0.1);
+    // glLightf(light, GL_QUADRATIC_ATTENUATION, 0.12);
+    
+
+    if (noite) {
+        glEnable(light);
+    } else {
+        glDisable(light);
+    }
+}
 
 void Cube (
     GLfloat V0[], GLfloat V1[], GLfloat V2[], GLfloat V3[], 
@@ -574,10 +629,14 @@ void Cube (
 void desenha_campo(GLfloat V[][3]) 
 {
     glPushMatrix();
-    	// glRotatef(T, 0, 1, 0);
+    	glEnable(GL_TEXTURE_2D);
         glColor3f(0.133f, 0.545f, 0.133f);
         glScalef(30, 0.5, 10);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
+        glDisable(GL_TEXTURE_2D);
+		fieldLines(V[0], V[1], V[5], V[4]);
+        placas(V[0], V[1], V[4], V[5]);
+
     glPopMatrix();
 }
 
@@ -604,6 +663,28 @@ void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo)
     glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
     glDisable(GL_TEXTURE_GEN_T);
     
+    
+    glColor3f(0.396f, 0.74151f, 0.69102f);
+
+    GLfloat mat_ambient[] = { 0.1f, 0.18725f, 0.1745f, 0.8f };
+    GLfloat mat_diffuse[] = {0.396f, 0.74151f, 0.69102f, 0.8f };
+    GLfloat mat_specular[] = {0.297254f, 0.30829f, 0.306678f, 0.8f };
+    GLfloat shine = 127.0f;
+    
+    for (i = 0; i < numero_de_bancos; i++) {
+        glPushMatrix();
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+            glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
+            glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
+            glutSolidCube(1);
+        glPopMatrix();
+        incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
+        incremento_y += ALTURA_ARQUIBANCADA;
+    }
+    glPopMatrix();
 }
 
 void desenha_entornos_do_campo(GLfloat V[][3])
@@ -611,7 +692,7 @@ void desenha_entornos_do_campo(GLfloat V[][3])
 // por baixo e ao redor do campo
     glPushMatrix();
         glColor3f(0.000f, 0.392f, 0.000f);
-        glScalef(38, 0.4, 20);
+        glScalef(60, 0.4, 30);
         Cube(V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]);
     glPopMatrix();
     
@@ -619,8 +700,37 @@ void desenha_entornos_do_campo(GLfloat V[][3])
     desenha_arquibancadas(20, V[0], false);
 }
 
+void init_lights()
+{
+    GLfloat light0_position[] = {0, 3000, 0, 1}; 
+    GLfloat light0_ambient_day[] = {0.7, 0.7, 0.7, 1};
+    GLfloat light0_ambient_night[] = {0, 0, 0, 1};
+        
+    GLfloat light0_diffuse[] = {1, 1, 1, 1};
+
+    glShadeModel(GL_SMOOTH);
+    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_day);
+
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.1999f);
+    // glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, ang);
+    // glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, ang);
+    
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    
+    if (noite) glDisable(GL_LIGHT0);
+    else glEnable(GL_LIGHT0);
+    
+    glEnable(GL_DEPTH_TEST);
+
+}
+
+
 void display()
 { 
+    // printf("Ang: %f\n", ang);
     GLfloat V[8][3] = {
         {-0.5f, 0.5f, 0.5f},
         { 0.5f, 0.5f, 0.5f},
@@ -631,15 +741,16 @@ void display()
         { 0.5f, -0.5f, -0.5f},
         {-0.5f, -0.5f, -0.5f},        
     };
-
+    init_lights();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+    // printf("GOAL POS: %f\n", -(V[1][1]+15));
     glLoadIdentity();
     gluLookAt(
         camera.Cx, camera.Cy, camera.Cz, 
         camera.atX, camera.atY, camera.atZ,
         0, 1, 0
     );
+
 
     desenha_entornos_do_campo(V);
     
@@ -665,19 +776,32 @@ void display()
 		placas(V[0], V[1], V[4], V[5]);
     glPopMatrix();
 	desenha_bola();
-
-    glTranslatef(0, 0.29, 0);
-    glRotatef(90, 1, 0, 0);
-    Bresenham3DCircle(point(0,0,0), 1.5);
-    // DrawCircle(0, 0, 1.5, 18);
     
-
+    glPushMatrix();
+        glTranslatef(0, 0.29, 0);
+        glRotatef(90, 1, 0, 0);
+        Bresenham3DCircle(point(0,0,0), 1.5);
+    glPopMatrix();
+    // DrawCircle(0, 0, 1.5, 18);
+    GLfloat dir_light1[] = {X_MAX_CAMPO-3, 0.29, Z_MAX_CAMPO-2};
+    GLfloat dir_light2[] = {-X_MAX_CAMPO+3, 0.29, Z_MAX_CAMPO-2};
+    GLfloat dir_light3[] = {X_MAX_CAMPO-3, 0.29, -Z_MAX_CAMPO+2};
+    GLfloat dir_light4[] = {-X_MAX_CAMPO+3, 0.29, -Z_MAX_CAMPO+2};
+    
+    
+    refletor(23.0f, 6.0f, 1, dir_light1, GL_LIGHT1);
+    refletor(-23.0f, 6.0f, -1, dir_light2, GL_LIGHT2);
+    refletor(23.0f, -6.0f, 1, dir_light3, GL_LIGHT3);
+    refletor(-23.0f, -6.0f, -1, dir_light4, GL_LIGHT4);
+    
+    // glPopMatrix();
+    
     glutSwapBuffers();
 }
 
 void init()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.529f, 0.808f, 0.922f, 1); 
     glEnable(GL_DEPTH_TEST);
 
     // ativar projeção em perspectiva
@@ -714,7 +838,7 @@ void keyboard(unsigned char key, int x, int y)
 
         case 'z': camera.Cz -= 0.5;    break;
         case 'Z': camera.Cz += 0.5;    break;
-
+        
         case 'w': 
         case 'W':
             bola.transZ -= TRANSLACAO_BOLA;
@@ -746,6 +870,11 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case 'r':
         case 'R': resetCamera();    break;
+        case 'n': ang += 0.01f;      break;
+        case 'm': ang -= 0.01f;      break;
+        case ' ':
+            // timer(1);
+            break;
         default: break;
     }
     
@@ -769,31 +898,9 @@ void reshape(GLsizei w, GLsizei h)
 
 	// Set the correct perspective.
 	gluPerspective(45,ratio,1,1000);
-
+    
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
-}
-
-void init_lights()
-{
-    // ideia: aumentar o ambient com o tempo e num certo ponto ligar refletores
-    GLfloat light0_position[] = {1500, 50000, 0, 1}; 
-    GLfloat light0_ambient[] = {1,1,1,1};
-    GLfloat light0_diffuse[] = {1, 1, 1, 1};
-    
-    glShadeModel(GL_SMOOTH);
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-    
-    glEnable(GL_COLOR_MATERIAL);
-
-    // glMaterialfv(GL_FRONT, GL_DIFFUSE);
-    
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_DEPTH_TEST);
-
 }
 
 
@@ -809,9 +916,11 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutSpecialFunc(specialKeys);
+    glutTimerFunc(33, timer, 1);
     init();
     init_lights();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
     glutMainLoop();
+    
     return 0;
 }
