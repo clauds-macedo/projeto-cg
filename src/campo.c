@@ -31,12 +31,20 @@
 #define DISTANCIA_ARQUIBANCADA_POS 15
 #define DISTANCIA_ARQUIBANCADA_NEG -DISTANCIA_ARQUIBANCADA_POS
 
+enum HORAS {
+    MADRUGADA,
+    DIA,
+    TARDE,
+    NOITE
+};
+
 GLfloat dimGray[] = {0.412f, 0.412f, 0.412f};
 
 GLfloat ROTACAO_BOLA = 0.0f;
 
 GLfloat ang = 0.000000f;
-GLfloat horario = 8.0f;
+int horario = 0;
+
 bool noite = false;
 
 
@@ -533,25 +541,52 @@ void print_arr(GLfloat arr[], int size) {
     printf("\n");
 }
 
-void timer(int value)
-{   
-    noite = (horario >= 6 && horario <= 15) ? false : true;
-    
-    if ((horario > 15 && horario <= 18) || (horario >= 4.5 && horario < 6)) 
-        glClearColor(0.957f, 0.643f, 0.376f, 1); 
-    else if (noite) 
-        glClearColor(0,0,0,1);
-    else if (!noite) 
+void setBackground()
+{
+    switch (horario)
+    {
+    case DIA:
         glClearColor(0.529f, 0.808f, 0.922f, 1); 
-    
-    horario += 0.1;
-    
-    if (horario > 23.99)
-        horario = 0; 
-    
-    // printf("horario: %f\n", horario);
-    glutPostRedisplay();
-    glutTimerFunc(33, timer, 1);
+        break;
+    case MADRUGADA:
+    case TARDE:
+        glClearColor(0.957f, 0.643f, 0.376f, 1); 
+
+        break;
+    case NOITE:
+        glClearColor(0,0,0,1);
+        break;
+    default:
+        break;
+    }
+}
+
+
+void timer()
+{
+    horario += 1;
+    if (horario > 3) {
+        horario = 0;
+    }
+
+    switch (horario)
+    {
+    case MADRUGADA:
+        noite = true;
+        break;
+    case DIA:
+        noite = false;
+        break;
+    case TARDE:
+        noite = false;
+        break;
+    case NOITE:
+        noite = true;
+    default:
+        break;
+    }
+
+    setBackground();
 }
 
 void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum light)
@@ -601,10 +636,6 @@ void refletor(GLfloat x, GLfloat z, GLfloat mult, GLfloat direction[], GLenum li
     glLightfv(light, GL_DIFFUSE, light1_diffuse);
     glLightfv(light, GL_SPECULAR, light_specular);
 
-    // glLightf(light, GL_CONSTANT_ATTENUATION, 2.0f);
-    // glLightf(light, GL_LINEAR_ATTENUATION, 0.1);
-    // glLightf(light, GL_QUADRATIC_ATTENUATION, 0.12);
-    
 
     if (noite) {
         glEnable(light);
@@ -640,51 +671,76 @@ void desenha_campo(GLfloat V[][3])
     glPopMatrix();
 }
 
+void drawTexturedBox(GLfloat size, GLenum type, char* file)
+{
+  static GLfloat n[6][3] =
+  {
+    {-1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {1.0, 0.0, 0.0},
+    {0.0, -1.0, 0.0},
+    {0.0, 0.0, 1.0},
+    {0.0, 0.0, -1.0}
+  };
+  static GLint faces[6][4] =
+  {
+    {0, 1, 2, 3},
+    {3, 2, 6, 7},
+    {7, 6, 5, 4},
+    {4, 5, 1, 0},
+    {5, 6, 2, 1},
+    {7, 4, 0, 3}
+  };
+  GLfloat v[8][3];
+  GLint i;
+
+  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -size / 2;
+  v[4][0] = v[5][0] = v[6][0] = v[7][0] = size / 2;
+  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
+  v[2][1] = v[3][1] = v[6][1] = v[7][1] = size / 2;
+  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
+  v[1][2] = v[2][2] = v[5][2] = v[6][2] = size / 2;
+
+    load_texture(file, 2);
+    glEnable(GL_TEXTURE_2D);
+
+  for (i = 5; i >= 0; i--) {
+    glBegin(type);
+    glNormal3fv(&n[i][0]);
+        glTexCoord2f(0.0, 0.0);
+    glVertex3fv(&v[faces[i][0]][0]);
+        glTexCoord2f(1.0, 0.0);
+    glVertex3fv(&v[faces[i][1]][0]);
+        glTexCoord2f(0.0, 1.0);
+    glVertex3fv(&v[faces[i][2]][0]);
+        glTexCoord2f(1.0, 1.0);
+    glVertex3fv(&v[faces[i][3]][0]);
+    glEnd();
+  }
+  	glDisable(GL_TEXTURE_2D);
+
+}
+
+
 void desenha_arquibancadas(int numero_de_bancos, GLfloat V[], bool negativo) 
 {
     int i;
     GLfloat incremento_y = 0;
     GLfloat incremento_z = negativo ? DISTANCIA_ARQUIBANCADA_NEG : DISTANCIA_ARQUIBANCADA_POS;
+    
     glColor3fv(dimGray);
-    load_texture("arquibancada.jpg", 2);
-    glEnable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
-    glEnable(GL_TEXTURE_GEN_T);
-    glBindTexture(GL_TEXTURE_2D, 2);
+    
     for (i = 0; i < numero_de_bancos; i++) {
         glPushMatrix();
 	        glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
 	        glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
-	        glutSolidCube(1);
-	        glPopMatrix();
-	        incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
-	        incremento_y += ALTURA_ARQUIBANCADA;
-    }
-    	glPopMatrix();
-    glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
-    glDisable(GL_TEXTURE_GEN_T);
-    
-    
-    glColor3f(0.396f, 0.74151f, 0.69102f);
-
-    GLfloat mat_ambient[] = { 0.1f, 0.18725f, 0.1745f, 0.8f };
-    GLfloat mat_diffuse[] = {0.396f, 0.74151f, 0.69102f, 0.8f };
-    GLfloat mat_specular[] = {0.297254f, 0.30829f, 0.306678f, 0.8f };
-    GLfloat shine = 127.0f;
-    
-    for (i = 0; i < numero_de_bancos; i++) {
-        glPushMatrix();
-            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-            glScalef(LARGURA_ARQUIBANCADA, ALTURA_ARQUIBANCADA, COMPRIMENTO_ARQUIBANCADA);
-            glTranslatef(0, V[1]+incremento_y, V[2]+incremento_z);
-            glutSolidCube(1);
+	        drawTexturedBox(1, GL_QUADS, "arquibancada.jpg");
+            // SolidCube(1);
         glPopMatrix();
         incremento_z = negativo ? incremento_z - 0.5 : incremento_z + 0.5;
         incremento_y += ALTURA_ARQUIBANCADA;
     }
-    glPopMatrix();
+    	glPopMatrix();
 }
 
 void desenha_entornos_do_campo(GLfloat V[][3])
@@ -714,6 +770,7 @@ void init_lights()
     glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient_day);
 
     glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.1999f);
+    
     // glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, ang);
     // glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, ang);
     
@@ -741,6 +798,8 @@ void display()
         { 0.5f, -0.5f, -0.5f},
         {-0.5f, -0.5f, -0.5f},        
     };
+
+
     init_lights();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // printf("GOAL POS: %f\n", -(V[1][1]+15));
@@ -873,7 +932,7 @@ void keyboard(unsigned char key, int x, int y)
         case 'n': ang += 0.01f;      break;
         case 'm': ang -= 0.01f;      break;
         case ' ':
-            // timer(1);
+            timer();
             break;
         default: break;
     }
@@ -916,7 +975,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutSpecialFunc(specialKeys);
-    glutTimerFunc(33, timer, 1);
+    // glutTimerFunc(33, timer, 1);
     init();
     init_lights();
 	glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 1+48);
